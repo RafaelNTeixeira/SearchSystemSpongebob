@@ -18,7 +18,11 @@ LOG_LEVEL = 'INFO'
 FEEDS = {
     'output.csv': {
         'format': 'csv',
-        'overwrite': True,  # Overwrite existing files
+        'overwrite': True,  
+    },
+    'output.json': {
+        'format': 'json',
+        'overwrite': True,
     },
 }
 
