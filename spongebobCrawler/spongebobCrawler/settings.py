@@ -12,6 +12,9 @@ BOT_NAME = 'spongebobCrawler'
 SPIDER_MODULES = ['spongebobCrawler.spiders']
 NEWSPIDER_MODULE = 'spongebobCrawler.spiders'
 
+LOG_ENABLED = False
+LOG_LEVEL = 'INFO'
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'spongebobCrawler (+http://www.yourdomain.com)'
