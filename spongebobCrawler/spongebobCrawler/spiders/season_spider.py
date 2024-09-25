@@ -39,49 +39,75 @@ class SeasonSpiderSpider(scrapy.Spider):
         for i in range(5, 80, 5):  # i is odd
             season_count += 1
             
-            print(f'------------------------------------')
-            print(f'Season {season_count}:')
+            print(f'\n---------------------------------------------\n')
+            print(f'Season {season_count}:\n')
 
             for j in range(2, 120, 2):  # j is even
                 episode_selector = f'#mw-content-text > div > div:nth-child(4) > table:nth-child({i}) > tbody > tr:nth-child({j}) > td:nth-child(3) > a'
                 episode_title = response.css(f'{episode_selector}::text').get()
                 episode_link = response.css(f'{episode_selector}::attr(href)').get()
 
-                ### TESTING CODE - REMOVE LATER
+
                 if episode_title is not None and episode_link is not None:
                     episode_link = response.urljoin(episode_link) # Convert relative URL to absolute URL
-                    #print(f'{episode_title}: {episode_link}')
+                    print(f'{episode_title}: {episode_link}')
+                    yield scrapy.Request(episode_link, self.parse_episode)
+                                        
+                    print(f'\n-----------{episode_title}\'s TRANSCRIPT-----------\n')
+                    episode_title = episode_title.replace(' ', '_') # Replace spaces with underscores
+                    transcript_link = f'{episode_link}/transcript'
+                    print(f'{episode_title}: {transcript_link}')
+                    yield scrapy.Request(transcript_link, self.parse_transcript)
                 else: # No more episodes in the season
                     break
 
-                if episode_title is not None and episode_link is not None:
-                    yield scrapy.Request(episode_link, self.parse_episode)
             
-            print(f'------------------------------------')
+            print(f'---------------------------------------------\n')
 
     def parse_episode(self, response):
-        title = response.xpath(f"{self.info_selector["Title"]}").get()
-        general = response.xpath(f"{self.info_selector["General"]}").getall()
+        title = response.xpath(f"{self.info_selector['Title']}").get()
+        general = response.xpath(f"{self.info_selector['General']}").getall()
         if len(general) != 5: # Unexpected information, would need to be fixed. In case of error, warn me
             return None
         season = general[0]
         episode = general[1]
         us_viewers = general[3]
         running_time = general[4]
-        airdateMonthDay = response.xpath(f"{self.info_selector["AirdateMonthDay"]}")
-        airdateYear = response.xpath(f"{self.info_selector["AirdateYear"]}").get() 
+        airdateMonthDay = response.xpath(f"{self.info_selector['AirdateMonthDay']}")
+        airdateYear = response.xpath(f"{self.info_selector['AirdateYear']}").get() 
         if airdateMonthDay is not None and airdateYear is not None:
             airdateMonthDay = airdateMonthDay.get().split()
             airdate = airdateMonthDay[1] + ' ' + self.month_dic[airdateMonthDay[0]] + ' ' + airdateYear
         else:
             airdate = "TBD"
-        writers = response.xpath(f"{self.info_selector["Writers"]}").getall()
-        animation = response.xpath(f"{self.info_selector["Animation"]}").getall()
-        characters = response.xpath(f"{self.info_selector["Characters"]}")
+        writers = response.xpath(f"{self.info_selector['Writers']}").getall()
+        animation = response.xpath(f"{self.info_selector['Animation']}").getall()
+        characters = response.xpath(f"{self.info_selector['Characters']}")
         characters = [character.xpath('./a[1]/text()').get() for character in characters if not character.xpath('.//ul')]
-        synopsis = response.xpath(f"{self.info_selector["Synopsis"]}")
+        synopsis = response.xpath(f"{self.info_selector['Synopsis']}")
         synopsis = [''.join(p.xpath('.//text()').getall()).strip() for p in synopsis]
         synopsis = ''.join(synopsis) # Remove this line if we need a list, or add '\n' if we need some sort of paragraph separation later
 
-        musics =list(set(response.xpath(f"{self.info_selector["Musics"]}").getall()))
+        musics =list(set(response.xpath(f"{self.info_selector['Musics']}").getall()))
         print(title, season, episode, us_viewers, running_time,airdate, writers, animation,characters, synopsis, musics)
+
+
+    def parse_transcript(self, response):
+        ul_elements = response.css('div.mw-parser-output ul')
+
+        for ul in ul_elements:
+            li_elements = ul.css('li')
+
+            for li in li_elements:
+                character = li.css('b::text').get(default='').strip() # Nome do personagem a dialogar
+
+                # Se recebe ':' como nome de personagem, significa que o nome da personagem está como hiperligação (<a>)
+                if character == ':':
+                    character = li.css('b a::text').get(default='').strip()
+                    
+                dialogue_parts = li.xpath('.//text()').getall() # Retira todos os nodes de texto, incluindo as tags <i>
+
+                dialogue = ' '.join(part.strip() for part in dialogue_parts if part.strip()) # Retirar espaços em branco e juntar as partes do diálogo
+
+                if dialogue:
+                    print(f'{dialogue}')
