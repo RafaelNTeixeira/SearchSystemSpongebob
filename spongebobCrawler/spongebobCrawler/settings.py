@@ -15,8 +15,12 @@ NEWSPIDER_MODULE = 'spongebobCrawler.spiders'
 LOG_ENABLED = False
 LOG_LEVEL = 'INFO'
 
-FEED_FORMAT = 'csv'         
-FEED_URI = 'output.csv'    
+FEEDS = {
+    'output.csv': {
+        'format': 'csv',
+        'overwrite': True,  # Overwrite existing files
+    },
+}
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
