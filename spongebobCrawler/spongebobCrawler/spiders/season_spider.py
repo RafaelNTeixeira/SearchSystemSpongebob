@@ -58,7 +58,6 @@ class SeasonSpiderSpider(scrapy.Spider):
                     episode_title = episode_title.replace(' ', '_') # Replace spaces with underscores
                     transcript_link = f'{episode_link}/transcript'
                     print(f'{episode_title}: {transcript_link}')
-                    yield scrapy.Request(transcript_link, self.parse_transcript)
                 else: # No more episodes in the season
                     break
 
@@ -90,7 +89,8 @@ class SeasonSpiderSpider(scrapy.Spider):
         item['synopsis'] = ''.join([''.join(p.xpath('.//text()').getall()).strip() for p in synopsis])
         item['musics'] = list(set(response.xpath(self.info_selector['Musics']).getall()))
 
-        yield item
+        transcript_link = f"{response.url}/transcript"
+        yield scrapy.Request(transcript_link, self.parse_transcript, meta={'item': item})
 
     def parse_transcript(self, response):
         item = response.meta['item']
@@ -112,7 +112,7 @@ class SeasonSpiderSpider(scrapy.Spider):
                 dialogue = ' '.join(part.strip() for part in dialogue_parts if part.strip()) # Retirar espaços em branco e juntar as partes do diálogo
 
                 if dialogue:
-                    transcript_lines.append(f"{character}: {dialogue}")
+                    transcript_lines.append(f"{dialogue}")
 
         item['transcript'] = '\n'.join(transcript_lines)
 
