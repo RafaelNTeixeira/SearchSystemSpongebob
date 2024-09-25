@@ -114,6 +114,6 @@ class SeasonSpiderSpider(scrapy.Spider):
                 if dialogue:
                     transcript_lines.append(f"{dialogue}")
 
-        item['transcript'] = '\n'.join(transcript_lines)
+        item['transcript'] = ' '.join(transcript_lines)
 
         yield item
