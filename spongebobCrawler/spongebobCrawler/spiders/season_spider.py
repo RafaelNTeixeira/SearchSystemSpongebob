@@ -1,5 +1,6 @@
 import scrapy
 
+from spongebobCrawler.items import EpisodeItem
 
 class SeasonSpiderSpider(scrapy.Spider):
     name = 'season_spider'
@@ -65,35 +66,36 @@ class SeasonSpiderSpider(scrapy.Spider):
             print(f'---------------------------------------------\n')
 
     def parse_episode(self, response):
-        title = response.xpath(f"{self.info_selector['Title']}").get()
-        general = response.xpath(f"{self.info_selector['General']}").getall()
-        if len(general) != 5: # Unexpected information, would need to be fixed. In case of error, warn me
+        item = EpisodeItem()
+        item['title'] = response.xpath(self.info_selector['Title']).get()
+        general = response.xpath(self.info_selector['General']).getall()
+        if len(general) != 5:  # Unexpected information
             return None
-        season = general[0]
-        episode = general[1]
-        us_viewers = general[3]
-        running_time = general[4]
-        airdateMonthDay = response.xpath(f"{self.info_selector['AirdateMonthDay']}")
-        airdateYear = response.xpath(f"{self.info_selector['AirdateYear']}").get() 
+        item['season'] = general[0]
+        item['episode'] = general[1]
+        item['us_viewers'] = general[3]
+        item['running_time'] = general[4]
+        airdateMonthDay = response.xpath(self.info_selector['AirdateMonthDay']).get()
+        airdateYear = response.xpath(self.info_selector['AirdateYear']).get()
         if airdateMonthDay is not None and airdateYear is not None:
-            airdateMonthDay = airdateMonthDay.get().split()
-            airdate = airdateMonthDay[1] + ' ' + self.month_dic[airdateMonthDay[0]] + ' ' + airdateYear
+            airdateMonthDay = airdateMonthDay.split()
+            item['airdate'] = f"{airdateMonthDay[1]} {self.month_dic[airdateMonthDay[0]]} {airdateYear}"
         else:
-            airdate = "TBD"
-        writers = response.xpath(f"{self.info_selector['Writers']}").getall()
-        animation = response.xpath(f"{self.info_selector['Animation']}").getall()
-        characters = response.xpath(f"{self.info_selector['Characters']}")
-        characters = [character.xpath('./a[1]/text()').get() for character in characters if not character.xpath('.//ul')]
-        synopsis = response.xpath(f"{self.info_selector['Synopsis']}")
-        synopsis = [''.join(p.xpath('.//text()').getall()).strip() for p in synopsis]
-        synopsis = ''.join(synopsis) # Remove this line if we need a list, or add '\n' if we need some sort of paragraph separation later
+            item['airdate'] = "TBD"
+        item['writers'] = response.xpath(self.info_selector['Writers']).getall()
+        item['animation'] = response.xpath(self.info_selector['Animation']).getall()
+        characters = response.xpath(self.info_selector['Characters'])
+        item['characters'] = [character.xpath('./a[1]/text()').get() for character in characters if not character.xpath('.//ul')]
+        synopsis = response.xpath(self.info_selector['Synopsis'])
+        item['synopsis'] = ''.join([''.join(p.xpath('.//text()').getall()).strip() for p in synopsis])
+        item['musics'] = list(set(response.xpath(self.info_selector['Musics']).getall()))
 
-        musics =list(set(response.xpath(f"{self.info_selector['Musics']}").getall()))
-        print(title, season, episode, us_viewers, running_time,airdate, writers, animation,characters, synopsis, musics)
-
+        yield item
 
     def parse_transcript(self, response):
+        item = response.meta['item']
         ul_elements = response.css('div.mw-parser-output ul')
+        transcript_lines = []
 
         for ul in ul_elements:
             li_elements = ul.css('li')
@@ -110,4 +112,8 @@ class SeasonSpiderSpider(scrapy.Spider):
                 dialogue = ' '.join(part.strip() for part in dialogue_parts if part.strip()) # Retirar espaços em branco e juntar as partes do diálogo
 
                 if dialogue:
-                    print(f'{dialogue}')
+                    transcript_lines.append(f"{character}: {dialogue}")
+
+        item['transcript'] = '\n'.join(transcript_lines)
+
+        yield item
