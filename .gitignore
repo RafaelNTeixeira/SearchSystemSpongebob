@@ -1,2 +1,7 @@
 .DS_Store
 PRI/
+
+# Scrapy stuff:
+.scrapy
+
+__pycache__/
