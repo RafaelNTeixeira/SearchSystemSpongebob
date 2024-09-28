@@ -12,15 +12,15 @@ BOT_NAME = 'spongebobCrawler'
 SPIDER_MODULES = ['spongebobCrawler.spiders']
 NEWSPIDER_MODULE = 'spongebobCrawler.spiders'
 
-LOG_ENABLED = True
+LOG_ENABLED = False
 LOG_LEVEL = 'INFO'
 
 FEEDS = {
-    '../data/raw/outputRaw.csv': {
+    '../data/raw/output_raw.csv': {
         'format': 'csv',
         'overwrite': True,  
     },
-    '../data/raw/outputRaw.json': {
+    '../data/raw/output_raw.json': {
         'format': 'json',
         'overwrite': True,
     },

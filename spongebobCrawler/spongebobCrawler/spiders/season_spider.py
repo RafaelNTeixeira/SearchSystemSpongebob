@@ -42,7 +42,7 @@ class SeasonSpiderSpider(scrapy.Spider):
         # Extract episode title and follow the link to the episode page
         season_aux = 5 # i is odd
         enable_print = getattr(self, "enable_print", False)
-
+        count = 0
         while (True) :
             season_count += 1
             season_table = response.css(self.info_selector["Season"].format(i=season_aux)) # i is season_aux
@@ -65,6 +65,8 @@ class SeasonSpiderSpider(scrapy.Spider):
                     if enable_print:
                         print(f'{episode_title}: {episode_link}')
                     
+                    count += 1
+                    
                     yield scrapy.Request(episode_link, self.parse_episode)
                 else: # No more episodes in the season
                     break
@@ -74,18 +76,20 @@ class SeasonSpiderSpider(scrapy.Spider):
             if enable_print:
                 print(f'---------------------------------------------\n')
             season_aux += 5
+        print(f"count: {count}")
 
     def parse_episode(self, response):
         item = EpisodeItem()
         general = response.xpath(self.info_selector['General']).getall()
-        if len(general) != 5:  # Unexpected information, needs fixing in case of error
+        if len(general) != 5:  # Unexpected information, needs fixing in case of error Needs fixing. Will get to it tomorrow
+            print(f"{response.xpath(self.info_selector['Title']).get()} | {len(general)} | {general}") 
             return None
         
         item['title'] = response.xpath(self.info_selector['Title']).get()
         item['season'] = general[0]
         item['episode'] = general[1]
         item['us_viewers'] = general[3]
-        item['running_time'] = general[4]
+        item['running_time'] = general[-1][:general[-1].find("seconds") + len("seconds")] if "seconds" in general[-1] else general[-1] #remove extra info
         
         airdateMonthDay = response.xpath(self.info_selector['AirdateMonthDay']).get()
         airdateYear = response.xpath(self.info_selector['AirdateYear']).get()

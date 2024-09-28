@@ -6,4 +6,6 @@ PRI/
 
 __pycache__/
 
-data/*
+data/raw/*
+data/documents/*
+data/clean/*
