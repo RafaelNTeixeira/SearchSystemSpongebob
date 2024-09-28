@@ -5,3 +5,5 @@ PRI/
 .scrapy
 
 __pycache__/
+
+data/*
