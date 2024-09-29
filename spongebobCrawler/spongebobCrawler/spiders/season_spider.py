@@ -13,6 +13,10 @@ class SeasonSpiderSpider(scrapy.Spider):
         "Episode": "tbody > tr:nth-child({j}) > td:nth-child(3) > a", # Built for css!
         "Title" : "//span[@class=\"mw-page-title-main\"]/text()",
         "General" : "//div[@data-source=\"title\"]//div/text()",
+        "TableSeason" : "//div[@data-source=\"title\"][1]/div/text()",
+        "TableEpisode" : "//div[@data-source=\"title\"][2]/div/text()",
+        "TableUSViewers" : "//div[@data-source=\"title\"]/h3[contains(text(), \"U.S. viewers (millions):\")]/../div//text()",
+        "TableRunningTime" : "//div[@data-source=\"title\"]/h3[contains(text(), \"Running time:\")]/../div//text()",
         "AirdateMonthDay" :"//div[@data-source=\"airdate\"]//a[@title=\"United States of America\"]/following-sibling::a[1]/text()", 
         "AirdateYear" :"//div[@data-source=\"airdate\"]//a[@title=\"United States of America\"]/following-sibling::a[1]/following-sibling::a[1]/text()", 
         "Writers":"//div[@data-source=\"writer\"]//a/text()",
@@ -42,7 +46,6 @@ class SeasonSpiderSpider(scrapy.Spider):
         # Extract episode title and follow the link to the episode page
         season_aux = 5 # i is odd
         enable_print = getattr(self, "enable_print", False)
-        count = 0
         while (True) :
             season_count += 1
             season_table = response.css(self.info_selector["Season"].format(i=season_aux)) # i is season_aux
@@ -65,8 +68,6 @@ class SeasonSpiderSpider(scrapy.Spider):
                     if enable_print:
                         print(f'{episode_title}: {episode_link}')
                     
-                    count += 1
-                    
                     yield scrapy.Request(episode_link, self.parse_episode)
                 else: # No more episodes in the season
                     break
@@ -76,21 +77,19 @@ class SeasonSpiderSpider(scrapy.Spider):
             if enable_print:
                 print(f'---------------------------------------------\n')
             season_aux += 5
-        print(f"count: {count}")
 
     def parse_episode(self, response):
         item = EpisodeItem()
-        general = response.xpath(self.info_selector['General']).getall()
-        if len(general) != 5:  # Unexpected information, needs fixing in case of error Needs fixing. Will get to it tomorrow
-            print(f"{response.xpath(self.info_selector['Title']).get()} | {len(general)} | {general}") 
-            return None
-        
         item['title'] = response.xpath(self.info_selector['Title']).get()
-        item['season'] = general[0]
-        item['episode'] = general[1]
-        item['us_viewers'] = general[3]
-        item['running_time'] = general[-1][:general[-1].find("seconds") + len("seconds")] if "seconds" in general[-1] else general[-1] #remove extra info
-        
+        item['season'] = response.xpath(self.info_selector['TableSeason']).get()
+        item['episode'] = response.xpath(self.info_selector['TableEpisode']).get()
+        item['us_viewers'] = ' '.join([x.strip() for x in response.xpath(self.info_selector['TableUSViewers']).getall()])
+        item['running_time'] = ' '.join([x.strip() for x in response.xpath(self.info_selector['TableRunningTime']).getall()])
+        if item['us_viewers'] == "":
+            item['us_viewers'] = "TBD"
+        if item['running_time'] == "":
+            item['running_time'] = "TBD"
+            
         airdateMonthDay = response.xpath(self.info_selector['AirdateMonthDay']).get()
         airdateYear = response.xpath(self.info_selector['AirdateYear']).get()
         if airdateMonthDay is not None and airdateYear is not None:
