@@ -102,7 +102,15 @@ class SeasonSpiderSpider(scrapy.Spider):
         item['animation'] = response.xpath(self.info_selector['Animation']).getall()
 
         characters = response.xpath(self.info_selector['Characters'])
-        item['characters'] = [character.xpath('./a[1]/text()').get() for character in characters if not character.xpath('.//ul')]
+        item['characters'] = []
+        for character in characters:
+            if character.xpath('.//ul'):
+                break
+
+            if character.xpath('./a[1]').get():
+                item['characters'].append(character.xpath('./a[1]/text()').get())
+            else:
+                item['characters'].append(character.xpath('.//text()').get().strip())
 
         synopsis = response.xpath(self.info_selector['Synopsis'])
         item['synopsis'] = ''.join([''.join(p.xpath('.//text()').getall()).strip() for p in synopsis])

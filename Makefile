@@ -14,6 +14,6 @@ crawl-print:
 analyze:
 	python data/src/analyze.py
 clean:
-	rm data/raw/* -f
-	rm data/clean/* -f
-	rm data/documents/* -f
+	rm -f data/raw/*
+	rm -f data/clean/*
+	rm -f data/documents/*
