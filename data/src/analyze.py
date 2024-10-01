@@ -1,6 +1,8 @@
 import pandas as pd
 from pathlib import Path
 from typing import Any
+from wordcloud import WordCloud, STOPWORDS
+import matplotlib.pyplot as plt
 
 current_file_path = Path(__file__)
 data_dir_path = current_file_path.parent.parent
@@ -41,6 +43,31 @@ def clean_data(src_df : pd.DataFrame) -> pd.DataFrame:
     # createUrlTranscript(df)
     return df
 
+def wordcloud(df : pd.DataFrame):
+    words = ''
+    stopwords = set(STOPWORDS)
+    
+    for transcript in df['transcript']:
+        transcript = str(transcript) 
+        tokens = transcript.split()
+
+        for i in range(len(tokens)):
+            tokens[i] = tokens[i].lower()
+     
+        words += " ".join(tokens) + " "
+
+    wordcloud = WordCloud(width = 800, height = 800,
+                background_color ='white',
+                stopwords = stopwords,
+                min_font_size = 10).generate(words)
+    
+    plt.figure(figsize = (8, 8), facecolor = None)
+    plt.imshow(wordcloud)
+    plt.axis("off")
+    plt.tight_layout(pad = 0)
+    
+    plt.savefig(f'{documents_output_dir_path}/wordcloud.png', format='png')
+    plt.close()
 
 for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     output_raw_stats_path = f"{documents_output_dir_path}/{f.stem}_{f.suffix[1:]}_stats.txt"
@@ -55,6 +82,7 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     file_stats(raw_df, output_raw_stats_path)
     clean_df = clean_data(raw_df)
     file_stats(clean_df, output_clean_stats_path)
+    wordcloud(clean_df)
     break
 
     
