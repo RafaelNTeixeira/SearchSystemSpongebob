@@ -43,31 +43,59 @@ def clean_data(src_df : pd.DataFrame) -> pd.DataFrame:
     # createUrlTranscript(df)
     return df
 
+# Generate wordcloud for transcripts and synopses
 def wordcloud(df : pd.DataFrame):
-    words = ''
+    transcript_words = ''
+    synopsis_words = ''
     stopwords = set(STOPWORDS)
-    
+
+
+    # Get transcript tokens
     for transcript in df['transcript']:
-        transcript = str(transcript) 
-        tokens = transcript.split()
+        transcript = str(transcript) # Ensure that we are processing a string 
+        transcript_tokens = transcript.split() # Split transcript into tokens
 
-        for i in range(len(tokens)):
-            tokens[i] = tokens[i].lower()
+        # Convert tokens to lowercase to easily count the frequency of words
+        for i in range(len(transcript_tokens)):
+            transcript_tokens[i] = transcript_tokens[i].lower()
      
-        words += " ".join(tokens) + " "
+        transcript_words += " ".join(transcript_tokens) + " "
 
-    wordcloud = WordCloud(width = 800, height = 800,
+    for synopsis in df['synopsis']:
+        synopsis = str(synopsis) 
+        synopsis_tokens = synopsis.split() 
+
+        for i in range(len(synopsis_tokens)):
+            synopsis_tokens[i] = synopsis_tokens[i].lower()
+     
+        synopsis_words += " ".join(synopsis_tokens) + " "
+
+    wordcloud_transcripts = WordCloud(width = 800, height = 800,
                 background_color ='white',
                 stopwords = stopwords,
-                min_font_size = 10).generate(words)
+                min_font_size = 10).generate(transcript_words)
+    
+    wordcloud_synopsis = WordCloud(width = 800, height = 800,
+                background_color ='white',
+                stopwords = stopwords,
+                min_font_size = 10).generate(synopsis_words)
     
     plt.figure(figsize = (8, 8), facecolor = None)
-    plt.imshow(wordcloud)
+    plt.imshow(wordcloud_transcripts)
     plt.axis("off")
     plt.tight_layout(pad = 0)
-    
-    plt.savefig(f'{documents_output_dir_path}/wordcloud.png', format='png')
+
+    plt.savefig(f'{documents_output_dir_path}/wordcloud_transcripts.png', format='png')
     plt.close()
+
+    plt.figure(figsize = (8, 8), facecolor = None)
+    plt.imshow(wordcloud_synopsis)
+    plt.axis("off")
+    plt.tight_layout(pad = 0)
+
+    plt.savefig(f'{documents_output_dir_path}/wordcloud_synopsis.png', format='png')
+    plt.close()
+    
 
 for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     output_raw_stats_path = f"{documents_output_dir_path}/{f.stem}_{f.suffix[1:]}_stats.txt"
