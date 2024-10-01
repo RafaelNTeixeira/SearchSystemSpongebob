@@ -105,7 +105,7 @@ class SeasonSpiderSpider(scrapy.Spider):
         item['characters'] = []
         for character in characters:
             if character.xpath('.//ul'):
-                break
+                continue
 
             if character.xpath('./a[1]').get():
                 item['characters'].append(character.xpath('./a[1]/text()').get())
