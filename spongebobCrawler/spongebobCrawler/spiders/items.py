@@ -12,3 +12,5 @@ class EpisodeItem(scrapy.Item):
     characters = scrapy.Field()
     synopsis = scrapy.Field()
     musics = scrapy.Field()
+    transcript = scrapy.Field()
+    url = scrapy.Field()

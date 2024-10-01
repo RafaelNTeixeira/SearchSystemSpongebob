@@ -65,10 +65,12 @@ class SeasonSpiderSpider(scrapy.Spider):
 
                 if episode_title is not None and episode_link is not None:
                     episode_link = response.urljoin(episode_link) # Convert relative URL to absolute URL
+                    item = EpisodeItem()
+                    item['url'] = episode_link
                     if enable_print:
                         print(f'{episode_title}: {episode_link}')
                     
-                    yield scrapy.Request(episode_link, self.parse_episode)
+                    yield scrapy.Request(episode_link, self.parse_episode, meta={'item':item})
                 else: # No more episodes in the season
                     break
 
@@ -79,12 +81,12 @@ class SeasonSpiderSpider(scrapy.Spider):
             season_aux += 5
 
     def parse_episode(self, response):
-        item = EpisodeItem()
+        item = response.meta['item']
         item['title'] = response.xpath(self.info_selector['Title']).get()
         item['season'] = response.xpath(self.info_selector['TableSeason']).get()
         item['episode'] = response.xpath(self.info_selector['TableEpisode']).get()
-        item['us_viewers'] = ' '.join([x.strip() for x in response.xpath(self.info_selector['TableUSViewers']).getall()])
-        item['running_time'] = ' '.join([x.strip() for x in response.xpath(self.info_selector['TableRunningTime']).getall()])
+        item['us_viewers'] = '|'.join([x.strip() for x in response.xpath(self.info_selector['TableUSViewers']).getall()])
+        item['running_time'] = '|'.join([x.strip() for x in response.xpath(self.info_selector['TableRunningTime']).getall()])
         if item['us_viewers'] == "":
             item['us_viewers'] = "TBD"
         if item['running_time'] == "":
