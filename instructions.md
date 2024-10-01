@@ -15,3 +15,7 @@ To run the project's analysis run the following command:
 Or simply: 
 
 ```make analyze```
+
+To run the complete project run the following command: 
+
+```make all```
