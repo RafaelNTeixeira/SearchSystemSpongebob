@@ -16,11 +16,35 @@ def file_stats(src_df : pd.DataFrame, output_path : Path, extra : dict[str, Any]
             f.write(f"{key}:{val}\n")
         f.write(f"Number of instances: {src_df.shape[0]}\n")
         f.write(f"Number of features: {src_df.shape[1]}\n")
+
+        for col in src_df.columns:
+            f.write(f"Number of NaN values in '{col}': {src_df[col].isna().sum()}\n")
         
         f.close()
 
+def create_url_transcript(df : pd.DataFrame):
+    df['url_transcript'] = f"{df['url']}/transcript"
+
+def remove_nan(df : pd.DataFrame):
+    df.dropna(subset=['transcript', 'airdate'], inplace=True)
+
+def fill_nan_values(df : pd.DataFrame, value : any):
+    df.fillna({'animation':value, 'writers':value, 'characters':value, 'musics':value}, inplace=True)
+
+def clean_data(src_df : pd.DataFrame) -> pd.DataFrame:
+    df = src_df.copy(True)
+    remove_nan(df)
+    fill_nan_values(df, "Not disclosed")
+    
+    print(df[df.isna().any(axis=1)][['title','animation']])
+    # Now there is a need to fix the us_viewers missing.
+    # createUrlTranscript(df)
+    return df
+
+
 for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
-    output_path = f"{documents_output_dir_path}/{f.stem}_{f.suffix[1:]}_stats.txt"
+    output_raw_stats_path = f"{documents_output_dir_path}/{f.stem}_{f.suffix[1:]}_stats.txt"
+    output_clean_stats_path = f"{documents_output_dir_path}/{f.stem[:-4]}_clean_{f.suffix[1:]}_stats.txt"
     if f.suffix[1:] == "json":
         raw_df = pd.read_json(f)
     elif f.suffix[1:] == "csv":
@@ -28,6 +52,9 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     else:
         continue
 
-    print(raw_df.head())
-    file_stats(raw_df, output_path)
+    file_stats(raw_df, output_raw_stats_path)
+    clean_df = clean_data(raw_df)
+    file_stats(clean_df, output_clean_stats_path)
+    break
+
     

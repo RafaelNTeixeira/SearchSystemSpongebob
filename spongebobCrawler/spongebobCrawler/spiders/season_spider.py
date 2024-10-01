@@ -17,13 +17,13 @@ class SeasonSpiderSpider(scrapy.Spider):
         "TableEpisode" : "//div[@data-source=\"title\"][2]/div/text()",
         "TableUSViewers" : "//div[@data-source=\"title\"]/h3[contains(text(), \"U.S. viewers (millions):\")]/../div//text()",
         "TableRunningTime" : "//div[@data-source=\"title\"]/h3[contains(text(), \"Running time:\")]/../div//text()",
-        "AirdateMonthDay" :"//div[@data-source=\"airdate\"]//a[@title=\"United States of America\"]/following-sibling::a[1]/text()", 
-        "AirdateYear" :"//div[@data-source=\"airdate\"]//a[@title=\"United States of America\"]/following-sibling::a[1]/following-sibling::a[1]/text()", 
+        "AirdateMonthDay" :"//div[@data-source=\"airdate\"]//a[@title=\"United States of America\"]/following-sibling::a[contains(@title, \"Timeline\")][1]/text()", 
+        "AirdateYear" :"//div[@data-source=\"airdate\"]//a[@title=\"United States of America\"]/following-sibling::a[contains(@title, \"Timeline\")][1]/following-sibling::a[1]/text()", 
         "Writers":"//div[@data-source=\"writer\"]//a/text()",
         "Animation":"//div[@data-source=\"director-animation\"]//a/text()",
         "Characters":"//div[@role=\"navigation\"]/following-sibling::h3[1]/following-sibling::ul[1]//li",
         "Synopsis":"//div[@class=\"mw-parser-output\"]/p[count(preceding-sibling::h2)=1]",
-        "Musics":"//div[@class=\"mw-parser-output\"]/p[count(preceding-sibling::h3/span[@id=\"Music\"])=1]/a/text()"
+        "Musics":"//div[@class=\"mw-parser-output\"]/p[count(preceding-sibling::h3/span[contains(@id, \"Music\")])<=2]/a/text()"
     } 
 
     month_dic = {
@@ -88,9 +88,9 @@ class SeasonSpiderSpider(scrapy.Spider):
         item['us_viewers'] = '|'.join([x.strip() for x in response.xpath(self.info_selector['TableUSViewers']).getall()])
         item['running_time'] = '|'.join([x.strip() for x in response.xpath(self.info_selector['TableRunningTime']).getall()])
         if item['us_viewers'] == "":
-            item['us_viewers'] = "TBD"
+            item['us_viewers'] = ""
         if item['running_time'] == "":
-            item['running_time'] = "TBD"
+            item['running_time'] = ""
             
         airdateMonthDay = response.xpath(self.info_selector['AirdateMonthDay']).get()
         airdateYear = response.xpath(self.info_selector['AirdateYear']).get()
@@ -98,7 +98,7 @@ class SeasonSpiderSpider(scrapy.Spider):
             airdateMonthDay = airdateMonthDay.split()
             item['airdate'] = f"{airdateMonthDay[1]} {self.month_dic[airdateMonthDay[0]]} {airdateYear}"
         else:
-            item['airdate'] = "TBD"
+            item['airdate'] = ""
 
         item['writers'] = response.xpath(self.info_selector['Writers']).getall()
         item['animation'] = response.xpath(self.info_selector['Animation']).getall()
