@@ -27,7 +27,11 @@ def file_stats(src_df : pd.DataFrame, output_path : Path, extra : dict[str, Any]
         f.close()
 
 def create_url_transcript(df : pd.DataFrame):
-    df['url_transcript'] = f"{df['url']}/transcript"
+    df['url_transcript'] = df['url'] + "/transcript"
+
+def create_n_collumns(df : pd.DataFrame, cols : list[str]):
+    for col in cols:
+        df[f"n_{col}"] = df.apply(lambda row: len(row[col]), axis=1)
 
 def remove_nan(df : pd.DataFrame):
     df.dropna(subset=['transcript', 'airdate'], inplace=True)
@@ -82,27 +86,35 @@ def clean_running_time(df : pd.DataFrame):
 
 def clean_animation(df : pd.DataFrame):
     if (type(df['animation'][0]) == type("")):
-        df['animation'] = df.apply(lambda x: [anim for anim in x['animation'].split(',') if anim.strip()[0] != '['], axis=1)
+        df['animation'] = df.apply(lambda x: [a for a in x['animation'].split(',') if a.strip()[0] != '['], axis=1)
+    elif (type(df['animation'][0]) == type([])):
+        df['animation'] = df.apply(lambda x: [a for a in x['animation'] if a.strip()[0] != '['], axis=1)
     else :
-        print("CHECK CLEAN_ANIMATION")  
+        print("CHECK CLEAN_ANIMATION", type(df['animation'][0]))  
     
 def clean_writers(df : pd.DataFrame):
     if (type(df['writers'][0]) == type("")):
         df['writers'] = df.apply(lambda x: [w for w in x['writers'].split(',') if w.strip()[0] != '['], axis=1)
+    elif (type(df['writers'][0]) == type([])):
+        df['writers'] = df.apply(lambda x: [w for w in x['writers'] if w.strip()[0] != '['], axis=1)
     else :
-        print("CHECK CLEAN_WRITERS")  
+        print("CHECK CLEAN_WRITERS", type(df['writers'][0]))  
 
 def clean_characters(df: pd.DataFrame):
     if (type(df['characters'][0]) == type("")):
         df['characters'] = df.apply(lambda x: [c for c in x['characters'].split(',') if c.strip()[0] != '['], axis=1)
+    elif (type(df['characters'][0]) == type([])):
+        df['characters'] = df.apply(lambda x: [c for c in x['characters'] if c.strip()[0] != '['], axis=1)
     else :
-        print("CHECK CLEAN_CHARACTERS")  
+        print("CHECK CLEAN_CHARACTERS", type(df['characters'][0]))  
 
 def clean_musics(df: pd.DataFrame):
     if (type(df['musics'][0]) == type("")):
         df['musics'] = df.apply(lambda x: [m for m in x['musics'].split(',') if m.strip()[0] != '['], axis=1)
+    elif (type(df['musics'][0]) == type([])):
+        df['musics'] = df.apply(lambda x: [m for m in x['musics'] if m.strip()[0] != '['], axis=1)
     else :
-        print("CHECK CLEAN_MUSICS") 
+        print("CHECK CLEAN_MUSICS", type(df['musics'][0])) 
 
 def clean_season(df: pd.DataFrame):
     df['season'] = pd.to_numeric(df['season'])
@@ -121,7 +133,9 @@ def clean_data(src_df : pd.DataFrame) -> pd.DataFrame:
     clean_musics(df)
     clean_season(df)
 
+    df.drop_duplicates(subset=['episode'])
     create_url_transcript(df)
+    create_n_collumns(df, ['animation', 'writers', 'characters', 'musics'])
 
     return df
 
