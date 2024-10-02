@@ -10,6 +10,7 @@ clean_output_dir_path = Path(f"{data_dir_path}/clean")
 clean_output_dir_path.mkdir(parents=True, exist_ok=True) # Where to output cleaned version of data
 documents_output_dir_path = Path(f"{data_dir_path}/documents")
 documents_output_dir_path.mkdir(parents=True, exist_ok=True) # Where to output artifacts like graphs
+file_type = ""
 
 def file_stats(src_df : pd.DataFrame, output_path : Path, extra : dict[str, Any] = dict()): 
     Path(output_path).touch(exist_ok=True)
@@ -37,7 +38,11 @@ def remove_nan(df : pd.DataFrame):
     df.dropna(subset=['transcript', 'airdate'], inplace=True)
 
 def fill_nan_values(df : pd.DataFrame, value : any):
-    df.fillna({'animation':value, 'writers':value, 'characters':value, 'musics':value}, inplace=True)
+    if type(value) == type([]):
+        for col in ['animation', 'writers', 'characters', 'musics']:
+            df[col] = df.apply(lambda x : value if type(pd.NA) == type(x[col]) else x[col], axis=1)
+    else:
+        df.fillna({'animation':value, 'writers':value, 'characters':value, 'musics':value}, inplace=True)
 
 def clean_airdate(df : pd.DataFrame):
     df['airdate'] = pd.to_datetime(df['airdate'], format="%d %m %Y")
@@ -122,7 +127,10 @@ def clean_season(df: pd.DataFrame):
 def clean_data(src_df : pd.DataFrame) -> pd.DataFrame:
     df = src_df.copy(True)
     remove_nan(df)
-    fill_nan_values(df, "Not disclosed")
+    if file_type == "json":
+        fill_nan_values(df, ["Not disclosed"])
+    else:
+        fill_nan_values(df, "Not disclosed")
 
     clean_airdate(df)
     clean_viewers(df)
@@ -248,8 +256,16 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     output_clean_stats_path = f"{documents_output_dir_path}/{f.stem[:-4]}_clean_{f.suffix[1:]}_stats.txt"
     output_clean_data_path = f"{clean_output_dir_path}/{f.stem[:-4]}_clean{f.suffix}"
     if f.suffix[1:] == "json":
+        file_type = "json"
         raw_df = pd.read_json(f)
+        raw_df.replace("", pd.NA, inplace=True)
+        raw_df.replace([], pd.NA, inplace=True)
+        raw_df['animation'] = raw_df['animation'].apply(lambda x: pd.NA if x == [] else x)
+        raw_df['characters'] = raw_df['characters'].apply(lambda x: pd.NA if x == [] else x)
+        raw_df['musics'] = raw_df['musics'].apply(lambda x: pd.NA if x == [] else x)
+        raw_df['writers'] = raw_df['writers'].apply(lambda x: pd.NA if x == [] else x)
     elif f.suffix[1:] == "csv":
+        file_type = "csv"
         raw_df = pd.read_csv(f, sep=",")
     else:
         continue
@@ -259,14 +275,13 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     file_stats(clean_df, output_clean_stats_path)
     
     if f.suffix[1:] == "json":
-        clean_df.to_json(output_clean_data_path)
+        clean_df.to_json(output_clean_data_path, orient='records', date_format='iso', force_ascii=False)
     elif f.suffix[1:] == "csv":
         clean_df.to_csv(output_clean_data_path, index=False)
     else:
         continue
     
-    # wordcloud(clean_df)
-    # data_analysis(clean_df)
-    break
+    wordcloud(clean_df)
+    data_analysis(clean_df)
 
     
