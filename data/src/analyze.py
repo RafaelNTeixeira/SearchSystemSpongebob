@@ -114,8 +114,10 @@ def data_analysis(df : pd.DataFrame):
             year = split_date[2]
             year_dict[year] += 1
 
-    years = list(year_dict.keys())
-    episode_count = list(year_dict.values())
+    sorted_year_dict = dict(sorted(year_dict.items(), key=lambda x: int(x[0]))) # Sort by year (represented as the key of dict)
+
+    years = list(sorted_year_dict.keys())
+    episode_count = list(sorted_year_dict.values())
 
     plt.figure(figsize=(10, 6))
     plt.bar(years, episode_count, color='skyblue')
@@ -128,9 +130,6 @@ def data_analysis(df : pd.DataFrame):
     
     plt.savefig(f'{documents_output_dir_path}/frequency_episodes_per_year.png', format='png')
     plt.close()
-
-
-
     
 
 for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
