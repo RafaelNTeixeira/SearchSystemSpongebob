@@ -73,18 +73,18 @@ def wordcloud(df : pd.DataFrame):
     synopsis_words = ''
     stopwords = set(STOPWORDS)
 
-
     # Get transcript tokens
     for transcript in df['transcript']:
         transcript = str(transcript) # Ensure that we are processing a string 
         transcript_tokens = transcript.split() # Split transcript into tokens
 
-        # Convert tokens to lowercase to easily count the frequency of words
+        # Convert tokens to lowercase to ensure consistent word frequency counting, as 'Word' and 'word' should be treated as the same token
         for i in range(len(transcript_tokens)):
             transcript_tokens[i] = transcript_tokens[i].lower()
      
         transcript_words += " ".join(transcript_tokens) + " "
 
+    # Get synopsis tokens
     for synopsis in df['synopsis']:
         synopsis = str(synopsis) 
         synopsis_tokens = synopsis.split() 
@@ -93,6 +93,7 @@ def wordcloud(df : pd.DataFrame):
             synopsis_tokens[i] = synopsis_tokens[i].lower()
      
         synopsis_words += " ".join(synopsis_tokens) + " "
+
 
     wordcloud_transcripts = WordCloud(width = 800, height = 800,
                 background_color ='white',
@@ -104,11 +105,13 @@ def wordcloud(df : pd.DataFrame):
                 stopwords = stopwords,
                 min_font_size = 10).generate(synopsis_words)
     
+    # Create plot
     plt.figure(figsize = (8, 8), facecolor = None)
     plt.imshow(wordcloud_transcripts)
     plt.axis("off")
     plt.tight_layout(pad = 0)
 
+    # Save plot as png
     plt.savefig(f'{documents_output_dir_path}/wordcloud_transcripts.png', format='png')
     plt.close()
 
@@ -118,6 +121,61 @@ def wordcloud(df : pd.DataFrame):
     plt.tight_layout(pad = 0)
 
     plt.savefig(f'{documents_output_dir_path}/wordcloud_synopsis.png', format='png')
+    plt.close()
+
+# Generation of plots for data analysis
+def data_analysis(df : pd.DataFrame):
+    airdates = set(df['airdate'])
+
+    # Retrieve years where episodes were aired
+    split_dates = [airdate.split(' ') for airdate in airdates]
+    filtered_dates = [date for date in split_dates if len(date) == 3] # Get only the dates that are in the correct format (ignores 'TBD')
+    year_dates = [date[2] for date in filtered_dates]
+
+    # Create dictionaries to:
+    episodes_year_dict = {year: 0 for year in year_dates} # Count the number of episodes aired per year
+    views_year_dict = {year: 0 for year in year_dates} # Count the amount of views per year
+
+    for airdate in df['airdate']:
+        split_date = airdate.split(' ')
+        if len(split_date) == 3:
+            year = split_date[2]
+            episodes_year_dict[year] += 1 # Increment an episode since one episode as been aired on that year
+            viewers = df[df['airdate'] == airdate]['us_viewers']
+
+            if not viewers.empty:
+                numeric_viewers = pd.to_numeric(viewers, errors='coerce') # Ignores fields filled with 'TBD'
+                views_year_dict[year] += round(float(numeric_viewers.sum()), 2)
+
+    sorted_episodes_year_dict = dict(sorted(episodes_year_dict.items(), key=lambda x: int(x[0]))) # Sort by year (represented as the key of dict)
+    sorted_views_year_dict = dict(sorted(views_year_dict.items(), key=lambda x: int(x[0])))
+
+    years = list(sorted_episodes_year_dict.keys())
+    episode_count = list(sorted_episodes_year_dict.values())
+    view_count = list(sorted_views_year_dict.values())
+
+    # Generate histogram for the frequency of eps per year
+    plt.figure(figsize=(10, 6))
+    plt.bar(years, episode_count, color='skyblue')
+    plt.xlabel('Year')
+    plt.ylabel('Number of Episodes')
+    plt.title('Number of Episodes per Year')
+    plt.xticks(rotation=45) 
+    plt.grid(axis='y')  
+    plt.tight_layout()  
+    plt.savefig(f'{documents_output_dir_path}/frequency_episodes_per_year.png', format='png')
+    plt.close()
+
+    # Generate histogram for the ammount of views per year
+    plt.figure(figsize=(10, 6))
+    plt.bar(years, view_count, color='skyblue')
+    plt.xlabel('Year')
+    plt.ylabel('Ammount of Views (Millions)')
+    plt.title('Ammount of Views per Year')
+    plt.xticks(rotation=45) 
+    plt.grid(axis='y')  
+    plt.tight_layout()  
+    plt.savefig(f'{documents_output_dir_path}/views_per_year.png', format='png')
     plt.close()
     
 
@@ -135,7 +193,6 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     file_stats(raw_df, output_raw_stats_path)
     clean_df = clean_data(raw_df)
     file_stats(clean_df, output_clean_stats_path)
-    # wordcloud(clean_df)
     
     if f.suffix[1:] == "json":
         clean_df.to_json(output_clean_data_path)
@@ -143,6 +200,9 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
         clean_df.to_csv(output_clean_data_path, index=False)
     else:
         continue
+    
+    wordcloud(clean_df)
+    data_analysis(clean_df)
     break
 
     
