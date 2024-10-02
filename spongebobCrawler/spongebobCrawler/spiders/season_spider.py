@@ -11,6 +11,7 @@ class SeasonSpiderSpider(scrapy.Spider):
     info_selector = {
         "Season": "#mw-content-text > div > div:nth-child(4) > table:nth-child({i})", # Built for css!
         "Episode": "tbody > tr:nth-child({j}) > td:nth-child(3) > a", # Built for css!
+        "Viewers": "tbody > tr:nth-child({j}) > td:nth-child(5) > center::text",
         "Title" : "//span[@class=\"mw-page-title-main\"]/text()",
         "General" : "//div[@data-source=\"title\"]//div/text()",
         "TableSeason" : "//div[@data-source=\"title\"][1]/div/text()",
@@ -61,16 +62,18 @@ class SeasonSpiderSpider(scrapy.Spider):
                 episode_selector = self.info_selector["Episode"].format(j=episode_aux)
                 episode_title = season_table.css(f"{episode_selector}::text").get()
                 episode_link = season_table.css(f"{episode_selector}::attr(href)").get()
-
+                viewers_selector = self.info_selector["Viewers"].format(j=episode_aux)
+                viewers = season_table.css(f"{viewers_selector}").getall()
 
                 if episode_title is not None and episode_link is not None:
                     episode_link = response.urljoin(episode_link) # Convert relative URL to absolute URL
                     item = EpisodeItem()
                     item['url'] = episode_link
+                    
                     if enable_print:
                         print(f'{episode_title}: {episode_link}')
                     
-                    yield scrapy.Request(episode_link, self.parse_episode, meta={'item':item})
+                    yield scrapy.Request(episode_link, self.parse_episode, meta={'item':item, 'viewers':viewers})
                 else: # No more episodes in the season
                     break
 
@@ -87,10 +90,8 @@ class SeasonSpiderSpider(scrapy.Spider):
         item['episode'] = response.xpath(self.info_selector['TableEpisode']).get()
         item['us_viewers'] = '|'.join([x.strip() for x in response.xpath(self.info_selector['TableUSViewers']).getall()])
         item['running_time'] = '|'.join([x.strip() for x in response.xpath(self.info_selector['TableRunningTime']).getall()])
-        if item['us_viewers'] == "":
-            item['us_viewers'] = ""
-        if item['running_time'] == "":
-            item['running_time'] = ""
+        if (item['us_viewers'] == ""):
+            item['us_viewers'] = '|'.join([x.strip() for x in response.meta['viewers']])
             
         airdateMonthDay = response.xpath(self.info_selector['AirdateMonthDay']).get()
         airdateYear = response.xpath(self.info_selector['AirdateYear']).get()
