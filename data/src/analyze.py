@@ -2,6 +2,7 @@ import pandas as pd
 from pathlib import Path
 from typing import Any
 from wordcloud import WordCloud, STOPWORDS
+import wordtree as WordTree
 import matplotlib.pyplot as plt
 
 current_file_path = Path(__file__)
@@ -123,6 +124,13 @@ def wordcloud(df : pd.DataFrame):
     plt.savefig(f'{documents_output_dir_path}/wordcloud_synopsis.png', format='png')
     plt.close()
 
+def wordtree(df : pd.DataFrame, keyword):
+    documents = df['transcript'].tolist()
+
+    g = WordTree.search_and_draw(corpus = documents, keyword = keyword)
+    output_path = f'{documents_output_dir_path}/wordtree_{keyword}'
+    g.render(output_path) 
+
 # Generation of plots for data analysis
 def data_analysis(df : pd.DataFrame):
     airdates = set(df['airdate'])
@@ -195,6 +203,7 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     
     wordcloud(clean_df)
     data_analysis(clean_df)
+    wordtree(clean_df, 'spongebob') # Insert keyword to make a wordtree
     break
 
     
