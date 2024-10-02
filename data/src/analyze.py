@@ -20,6 +20,7 @@ def file_stats(src_df : pd.DataFrame, output_path : Path, extra : dict[str, Any]
         f.write(f"Number of features: {src_df.shape[1]}\n")
 
         for col in src_df.columns:
+            f.write(f"Attribute: '{col}' ({type(src_df[col][0])})")
             f.write(f"Number of NaN values in '{col}': {src_df[col].isna().sum()}\n")
         
         f.close()
@@ -33,14 +34,37 @@ def remove_nan(df : pd.DataFrame):
 def fill_nan_values(df : pd.DataFrame, value : any):
     df.fillna({'animation':value, 'writers':value, 'characters':value, 'musics':value}, inplace=True)
 
+def clean_airdate(df : pd.DataFrame):
+    df['airdate'] = pd.to_datetime(df['airdate'], format="%d %m %Y")
+
+def clean_viewers(df : pd.DataFrame):
+    def choose_viewers(row : pd.Series):
+        string = row['us_viewers']
+        if (len(string) <= 4):
+            if string[0].isnumeric():
+                return string
+            return "0.0"
+        tokens = string.split('|')
+        for i in range(len(tokens)-1):
+            if tokens[i][0].isnumeric() and tokens[i+1][0].isnumeric():
+                return tokens[i]
+        return "0.0"
+
+    df['us_viewers'] = df['us_viewers'].astype(str)
+    df['us_viewers'] = df.apply(choose_viewers, axis=1)
+    df['us_viewers'] = pd.to_numeric(df['us_viewers'])
+    print(df['us_viewers'].unique())
+
 def clean_data(src_df : pd.DataFrame) -> pd.DataFrame:
     df = src_df.copy(True)
     remove_nan(df)
     fill_nan_values(df, "Not disclosed")
+    clean_airdate(df)
+    clean_viewers(df)
     
-    print(df[df.isna().any(axis=1)][['title','animation']])
-    # Now there is a need to fix the us_viewers missing.
-    # createUrlTranscript(df)
+    create_url_transcript(df)
+
+    # print(df[['title', 'us_viewers']])
     return df
 
 # Generate wordcloud for transcripts and synopses
@@ -100,6 +124,7 @@ def wordcloud(df : pd.DataFrame):
 for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     output_raw_stats_path = f"{documents_output_dir_path}/{f.stem}_{f.suffix[1:]}_stats.txt"
     output_clean_stats_path = f"{documents_output_dir_path}/{f.stem[:-4]}_clean_{f.suffix[1:]}_stats.txt"
+    output_clean_data_path = f"{clean_output_dir_path}/{f.stem[:-4]}_clean{f.suffix}"
     if f.suffix[1:] == "json":
         raw_df = pd.read_json(f)
     elif f.suffix[1:] == "csv":
@@ -110,7 +135,14 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     file_stats(raw_df, output_raw_stats_path)
     clean_df = clean_data(raw_df)
     file_stats(clean_df, output_clean_stats_path)
-    wordcloud(clean_df)
+    # wordcloud(clean_df)
+    
+    if f.suffix[1:] == "json":
+        clean_df.to_json(output_clean_data_path)
+    elif f.suffix[1:] == "csv":
+        clean_df.to_csv(output_clean_data_path, index=False)
+    else:
+        continue
     break
 
     
