@@ -102,18 +102,21 @@ def wordcloud(df : pd.DataFrame):
 # Generation of plots for data analysis
 def data_analysis(df : pd.DataFrame):
     airdates = set(df['airdate'])
-    split_dates = [airdate.split(' ') for airdate in airdates]
-    filtered_dates = [date for date in split_dates if len(date) == 3] # Get only the dates that are in the correct format (ignores "TBD")
-    year_dates = [date[2] for date in filtered_dates]
-    episodes_year_dict = {year: 0 for year in year_dates} # Get a dictionary only for the years that episodes were aired 
-    views_year_dict = {year: 0 for year in year_dates} 
 
-    # Count the frequency of each episode per year
+    # Retrieve years where episodes were aired
+    split_dates = [airdate.split(' ') for airdate in airdates]
+    filtered_dates = [date for date in split_dates if len(date) == 3] # Get only the dates that are in the correct format (ignores 'TBD')
+    year_dates = [date[2] for date in filtered_dates]
+
+    # Create dictionaries to:
+    episodes_year_dict = {year: 0 for year in year_dates} # Count the number of episodes aired per year
+    views_year_dict = {year: 0 for year in year_dates} # Count the amount of views per year
+
     for airdate in df['airdate']:
         split_date = airdate.split(' ')
         if len(split_date) == 3:
             year = split_date[2]
-            episodes_year_dict[year] += 1
+            episodes_year_dict[year] += 1 # Increment an episode since one episode as been aired on that year
             viewers = df[df['airdate'] == airdate]['us_viewers']
 
             if not viewers.empty:
@@ -136,7 +139,6 @@ def data_analysis(df : pd.DataFrame):
     plt.xticks(rotation=45) 
     plt.grid(axis='y')  
     plt.tight_layout()  
-    
     plt.savefig(f'{documents_output_dir_path}/frequency_episodes_per_year.png', format='png')
     plt.close()
 
@@ -149,7 +151,6 @@ def data_analysis(df : pd.DataFrame):
     plt.xticks(rotation=45) 
     plt.grid(axis='y')  
     plt.tight_layout()  
-    
     plt.savefig(f'{documents_output_dir_path}/views_per_year.png', format='png')
     plt.close()
     
