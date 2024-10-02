@@ -50,10 +50,35 @@ def clean_viewers(df : pd.DataFrame):
                 return tokens[i]
         return "0.0"
 
-    df['us_viewers'] = df['us_viewers'].astype(str)
     df['us_viewers'] = df.apply(choose_viewers, axis=1)
     df['us_viewers'] = pd.to_numeric(df['us_viewers'])
-    print(df['us_viewers'].unique())
+
+def clean_running_time(df : pd.DataFrame):
+    def create_timedelta(string: str):
+        minutes = 0
+        seconds = 0
+        parts = string.split(',')
+    
+        for part in parts:
+            part = part.strip() 
+            if 'minute' in part:
+                minutes = int(part.split(' ')[0])
+            elif 'second' in part:
+                seconds = int(part.split(' ')[0])
+    
+        return pd.Timedelta(minutes=minutes, seconds=seconds)
+    
+    def choose_running_time(row : pd.Series):
+        string = row['running_time']
+        tokens = string.split('|')
+        if len(tokens) != 1:
+            for x in tokens:
+                if "uncut" in x or "original" in x:
+                    return create_timedelta(x)
+        return create_timedelta(tokens[0]) 
+    
+    df['running_time'] = df.apply(choose_running_time, axis=1)
+
 
 def clean_data(src_df : pd.DataFrame) -> pd.DataFrame:
     df = src_df.copy(True)
@@ -61,7 +86,9 @@ def clean_data(src_df : pd.DataFrame) -> pd.DataFrame:
     fill_nan_values(df, "Not disclosed")
     clean_airdate(df)
     clean_viewers(df)
+    clean_running_time(df)
     
+
     create_url_transcript(df)
 
     # print(df[['title', 'us_viewers']])
@@ -201,8 +228,8 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     else:
         continue
     
-    wordcloud(clean_df)
-    data_analysis(clean_df)
+    # wordcloud(clean_df)
+    # data_analysis(clean_df)
     break
 
     
