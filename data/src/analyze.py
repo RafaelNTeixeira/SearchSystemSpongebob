@@ -105,20 +105,29 @@ def data_analysis(df : pd.DataFrame):
     split_dates = [airdate.split(' ') for airdate in airdates]
     filtered_dates = [date for date in split_dates if len(date) == 3] # Get only the dates that are in the correct format (ignores "TBD")
     year_dates = [date[2] for date in filtered_dates]
-    year_dict = {year: 0 for year in year_dates} # Get a dictionary only for the years that episodes were aired 
+    episodes_year_dict = {year: 0 for year in year_dates} # Get a dictionary only for the years that episodes were aired 
+    views_year_dict = {year: 0 for year in year_dates} 
 
     # Count the frequency of each episode per year
     for airdate in df['airdate']:
         split_date = airdate.split(' ')
         if len(split_date) == 3:
             year = split_date[2]
-            year_dict[year] += 1
+            episodes_year_dict[year] += 1
+            viewers = df[df['airdate'] == airdate]['us_viewers']
 
-    sorted_year_dict = dict(sorted(year_dict.items(), key=lambda x: int(x[0]))) # Sort by year (represented as the key of dict)
+            if not viewers.empty:
+                numeric_viewers = pd.to_numeric(viewers, errors='coerce') # Ignores fields filled with 'TBD'
+                views_year_dict[year] += round(float(numeric_viewers.sum()), 2)
 
-    years = list(sorted_year_dict.keys())
-    episode_count = list(sorted_year_dict.values())
+    sorted_episodes_year_dict = dict(sorted(episodes_year_dict.items(), key=lambda x: int(x[0]))) # Sort by year (represented as the key of dict)
+    sorted_views_year_dict = dict(sorted(views_year_dict.items(), key=lambda x: int(x[0])))
 
+    years = list(sorted_episodes_year_dict.keys())
+    episode_count = list(sorted_episodes_year_dict.values())
+    view_count = list(sorted_views_year_dict.values())
+
+    # Generate histogram for the frequency of eps per year
     plt.figure(figsize=(10, 6))
     plt.bar(years, episode_count, color='skyblue')
     plt.xlabel('Year')
@@ -129,6 +138,19 @@ def data_analysis(df : pd.DataFrame):
     plt.tight_layout()  
     
     plt.savefig(f'{documents_output_dir_path}/frequency_episodes_per_year.png', format='png')
+    plt.close()
+
+    # Generate histogram for the ammount of views per year
+    plt.figure(figsize=(10, 6))
+    plt.bar(years, view_count, color='skyblue')
+    plt.xlabel('Year')
+    plt.ylabel('Ammount of Views (Millions)')
+    plt.title('Ammount of Views per Year')
+    plt.xticks(rotation=45) 
+    plt.grid(axis='y')  
+    plt.tight_layout()  
+    
+    plt.savefig(f'{documents_output_dir_path}/views_per_year.png', format='png')
     plt.close()
     
 
