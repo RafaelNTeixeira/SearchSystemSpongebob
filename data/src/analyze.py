@@ -30,10 +30,6 @@ def file_stats(src_df : pd.DataFrame, output_path : Path, extra : dict[str, Any]
 def create_url_transcript(df : pd.DataFrame):
     df['url_transcript'] = df['url'] + "/transcript"
 
-def create_n_collumns(df : pd.DataFrame, cols : list[str]):
-    for col in cols:
-        df[f"n_{col}"] = df.apply(lambda row: len(row[col]), axis=1)
-
 def remove_nan(df : pd.DataFrame):
     df.dropna(subset=['transcript', 'airdate'], inplace=True)
 
@@ -143,7 +139,6 @@ def clean_data(src_df : pd.DataFrame) -> pd.DataFrame:
 
     df.drop_duplicates(subset=['episode'])
     create_url_transcript(df)
-    create_n_collumns(df, ['animation', 'writers', 'characters', 'musics'])
 
     return df
 
