@@ -200,31 +200,23 @@ def data_analysis(df : pd.DataFrame):
     airdates = set(df['airdate'])
 
     # Retrieve years where episodes were aired
-    split_dates = [airdate.split(' ') for airdate in airdates]
-    filtered_dates = [date for date in split_dates if len(date) == 3] # Get only the dates that are in the correct format (ignores 'TBD')
-    year_dates = [date[2] for date in filtered_dates]
+    year_dates = [airdate.year for airdate in airdates]
 
     # Create dictionaries to:
-    episodes_year_dict = {year: 0 for year in year_dates} # Count the number of episodes aired per year
-    views_year_dict = {year: 0 for year in year_dates} # Count the amount of views per year
+    episodes_year_dict = {year: 0 for year in set(year_dates)} # Count the number of episodes aired per year
+    views_year_dict = {year: 0 for year in set(year_dates)} # Count the amount of views per year
 
     for airdate in df['airdate']:
-        split_date = airdate.split(' ')
-        if len(split_date) == 3:
-            year = split_date[2]
-            episodes_year_dict[year] += 1 # Increment an episode since one episode as been aired on that year
-            viewers = df[df['airdate'] == airdate]['us_viewers']
+        year = airdate.year
+        episodes_year_dict[year] += 1 # Increment an episode since one episode as been aired on that year
+        viewers = df[df['airdate'] == airdate]['us_viewers']
 
-            if not viewers.empty:
-                numeric_viewers = pd.to_numeric(viewers, errors='coerce') # Ignores fields filled with 'TBD'
-                views_year_dict[year] += round(float(numeric_viewers.sum()), 2)
+        if not viewers.empty:
+            views_year_dict[year] += round(float(viewers.sum()), 2)    
 
-    sorted_episodes_year_dict = dict(sorted(episodes_year_dict.items(), key=lambda x: int(x[0]))) # Sort by year (represented as the key of dict)
-    sorted_views_year_dict = dict(sorted(views_year_dict.items(), key=lambda x: int(x[0])))
-
-    years = list(sorted_episodes_year_dict.keys())
-    episode_count = list(sorted_episodes_year_dict.values())
-    view_count = list(sorted_views_year_dict.values())
+    years = list(episodes_year_dict.keys())
+    episode_count = list(episodes_year_dict.values())
+    view_count = list(views_year_dict.values())
 
     # Generate histogram for the frequency of eps per year
     plt.figure(figsize=(10, 6))
@@ -232,7 +224,7 @@ def data_analysis(df : pd.DataFrame):
     plt.xlabel('Year')
     plt.ylabel('Number of Episodes')
     plt.title('Number of Episodes per Year')
-    plt.xticks(rotation=45) 
+    plt.xticks(years, rotation=45) 
     plt.grid(axis='y')  
     plt.tight_layout()  
     plt.savefig(f'{documents_output_dir_path}/frequency_episodes_per_year.png', format='png')
@@ -244,7 +236,7 @@ def data_analysis(df : pd.DataFrame):
     plt.xlabel('Year')
     plt.ylabel('Ammount of Views (Millions)')
     plt.title('Ammount of Views per Year')
-    plt.xticks(rotation=45) 
+    plt.xticks(years, rotation=45) 
     plt.grid(axis='y')  
     plt.tight_layout()  
     plt.savefig(f'{documents_output_dir_path}/views_per_year.png', format='png')
