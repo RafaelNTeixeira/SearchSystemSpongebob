@@ -49,18 +49,18 @@ def wordcloud(df : pd.DataFrame):
     synopsis_words = ''
     stopwords = set(STOPWORDS)
 
-
     # Get transcript tokens
     for transcript in df['transcript']:
         transcript = str(transcript) # Ensure that we are processing a string 
         transcript_tokens = transcript.split() # Split transcript into tokens
 
-        # Convert tokens to lowercase to easily count the frequency of words
+        # Convert tokens to lowercase to ensure consistent word frequency counting, as 'Word' and 'word' should be treated as the same token
         for i in range(len(transcript_tokens)):
             transcript_tokens[i] = transcript_tokens[i].lower()
      
         transcript_words += " ".join(transcript_tokens) + " "
 
+    # Get synopsis tokens
     for synopsis in df['synopsis']:
         synopsis = str(synopsis) 
         synopsis_tokens = synopsis.split() 
@@ -69,6 +69,7 @@ def wordcloud(df : pd.DataFrame):
             synopsis_tokens[i] = synopsis_tokens[i].lower()
      
         synopsis_words += " ".join(synopsis_tokens) + " "
+
 
     wordcloud_transcripts = WordCloud(width = 800, height = 800,
                 background_color ='white',
@@ -80,11 +81,13 @@ def wordcloud(df : pd.DataFrame):
                 stopwords = stopwords,
                 min_font_size = 10).generate(synopsis_words)
     
+    # Create plot
     plt.figure(figsize = (8, 8), facecolor = None)
     plt.imshow(wordcloud_transcripts)
     plt.axis("off")
     plt.tight_layout(pad = 0)
 
+    # Save plot as png
     plt.savefig(f'{documents_output_dir_path}/wordcloud_transcripts.png', format='png')
     plt.close()
 
@@ -95,6 +98,39 @@ def wordcloud(df : pd.DataFrame):
 
     plt.savefig(f'{documents_output_dir_path}/wordcloud_synopsis.png', format='png')
     plt.close()
+
+# Generation of plots for data analysis
+def data_analysis(df : pd.DataFrame):
+    airdates = set(df['airdate'])
+    split_dates = [airdate.split(' ') for airdate in airdates]
+    filtered_dates = [date for date in split_dates if len(date) == 3] # Get only the dates that are in the correct format (ignores "TBD")
+    year_dates = [date[2] for date in filtered_dates]
+    year_dict = {year: 0 for year in year_dates} # Get a dictionary only for the years that episodes were aired 
+
+    # Count the frequency of each episode per year
+    for airdate in df['airdate']:
+        split_date = airdate.split(' ')
+        if len(split_date) == 3:
+            year = split_date[2]
+            year_dict[year] += 1
+
+    years = list(year_dict.keys())
+    episode_count = list(year_dict.values())
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(years, episode_count, color='skyblue')
+    plt.xlabel('Year')
+    plt.ylabel('Number of Episodes')
+    plt.title('Number of Episodes per Year')
+    plt.xticks(rotation=45) 
+    plt.grid(axis='y')  
+    plt.tight_layout()  
+    
+    plt.savefig(f'{documents_output_dir_path}/frequency_episodes_per_year.png', format='png')
+    plt.close()
+
+
+
     
 
 for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
@@ -111,6 +147,7 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     clean_df = clean_data(raw_df)
     file_stats(clean_df, output_clean_stats_path)
     wordcloud(clean_df)
+    data_analysis(clean_df)
     break
 
     
