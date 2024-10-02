@@ -12,9 +12,9 @@ BOT_NAME = 'spongebobCrawler'
 SPIDER_MODULES = ['spongebobCrawler.spiders']
 NEWSPIDER_MODULE = 'spongebobCrawler.spiders'
 
-LOG_ENABLED = False
+LOG_ENABLED = True
 LOG_LEVEL = 'INFO'
-
+FEED_EXPORT_ENCODING = 'utf-8'
 FEEDS = {
     '../data/raw/output_raw.csv': {
         'format': 'csv',

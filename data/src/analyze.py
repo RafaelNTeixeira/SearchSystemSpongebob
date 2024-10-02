@@ -20,8 +20,9 @@ def file_stats(src_df : pd.DataFrame, output_path : Path, extra : dict[str, Any]
         f.write(f"Number of features: {src_df.shape[1]}\n")
 
         for col in src_df.columns:
-            f.write(f"Attribute: '{col}' ({type(src_df[col][0])})")
-            f.write(f"Number of NaN values in '{col}': {src_df[col].isna().sum()}\n")
+            f.write(f"Attribute: '{col}' ({type(src_df[col][0])})\n")
+            f.write(f"\tNumber of NaN values in '{col}': {src_df[col].isna().sum()}\n")
+            f.write(f"\n")
         
         f.close()
 
@@ -79,19 +80,49 @@ def clean_running_time(df : pd.DataFrame):
     
     df['running_time'] = df.apply(choose_running_time, axis=1)
 
+def clean_animation(df : pd.DataFrame):
+    if (type(df['animation'][0]) == type("")):
+        df['animation'] = df.apply(lambda x: [anim for anim in x['animation'].split(',') if anim.strip()[0] != '['], axis=1)
+    else :
+        print("CHECK CLEAN_ANIMATION")  
+    
+def clean_writers(df : pd.DataFrame):
+    if (type(df['writers'][0]) == type("")):
+        df['writers'] = df.apply(lambda x: [w for w in x['writers'].split(',') if w.strip()[0] != '['], axis=1)
+    else :
+        print("CHECK CLEAN_WRITERS")  
+
+def clean_characters(df: pd.DataFrame):
+    if (type(df['characters'][0]) == type("")):
+        df['characters'] = df.apply(lambda x: [c for c in x['characters'].split(',') if c.strip()[0] != '['], axis=1)
+    else :
+        print("CHECK CLEAN_CHARACTERS")  
+
+def clean_musics(df: pd.DataFrame):
+    if (type(df['musics'][0]) == type("")):
+        df['musics'] = df.apply(lambda x: [m for m in x['musics'].split(',') if m.strip()[0] != '['], axis=1)
+    else :
+        print("CHECK CLEAN_MUSICS") 
+
+def clean_season(df: pd.DataFrame):
+    df['season'] = pd.to_numeric(df['season'])
 
 def clean_data(src_df : pd.DataFrame) -> pd.DataFrame:
     df = src_df.copy(True)
     remove_nan(df)
     fill_nan_values(df, "Not disclosed")
+
     clean_airdate(df)
     clean_viewers(df)
     clean_running_time(df)
-    
+    clean_animation(df)
+    clean_writers(df)
+    clean_characters(df)
+    clean_musics(df)
+    clean_season(df)
 
     create_url_transcript(df)
 
-    # print(df[['title', 'us_viewers']])
     return df
 
 # Generate wordcloud for transcripts and synopses

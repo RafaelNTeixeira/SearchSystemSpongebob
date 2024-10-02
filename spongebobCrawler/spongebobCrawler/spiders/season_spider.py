@@ -24,7 +24,7 @@ class SeasonSpiderSpider(scrapy.Spider):
         "Animation":"//div[@data-source=\"director-animation\"]//a/text()",
         "Characters":"//div[@role=\"navigation\"]/following-sibling::h3[1]/following-sibling::ul[1]//li",
         "Synopsis":"//div[@class=\"mw-parser-output\"]/p[count(preceding-sibling::h2)=1]",
-        "Musics":"//div[@class=\"mw-parser-output\"]/p[count(preceding-sibling::h3/span[contains(@id, \"Music\")])<=2]/a/text()"
+        "Musics":"//div[@class='mw-parser-output']/p[count(preceding-sibling::h3/span[@id=\"Music\"])=1]/a/text() | //div[@class='mw-parser-output']/p[count(preceding-sibling::h3/span[contains(@id,\"Music_\")])=2]/a/text()"
     } 
 
     month_dic = {
