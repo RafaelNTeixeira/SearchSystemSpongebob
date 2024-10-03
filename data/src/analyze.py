@@ -192,6 +192,8 @@ def wordcloud(df : pd.DataFrame):
     plt.savefig(f'{documents_output_dir_path}/wordcloud_transcripts.png', format='png')
     plt.close()
 
+    print("Wordcloud for transcripts generated")
+
     plt.figure(figsize = (8, 8), facecolor = None)
     plt.imshow(wordcloud_synopsis)
     plt.axis("off")
@@ -200,12 +202,22 @@ def wordcloud(df : pd.DataFrame):
     plt.savefig(f'{documents_output_dir_path}/wordcloud_synopsis.png', format='png')
     plt.close()
 
-def wordtree(df : pd.DataFrame, keyword):
-    documents = df['transcript'].tolist()
+    print("Wordcloud for synopses generated")
 
-    g = WordTree.search_and_draw(corpus = documents, keyword = keyword, max_n = 5)
-    output_path = f'{documents_output_dir_path}/wordtree_{keyword}'
-    g.render(output_path) 
+def wordtree(df : pd.DataFrame, keyword):
+    documents_transcript = df['transcript'].tolist()
+    documents_synopses = df['synopsis'].tolist()
+
+    transcripts_g = WordTree.search_and_draw(corpus = documents_transcript, keyword = keyword, max_n = 5)
+    synopses_g = WordTree.search_and_draw(corpus = documents_synopses, keyword = keyword, max_n = 5)
+
+    output_path_transcripts = f'{documents_output_dir_path}/wordtree_transcripts_{keyword}'
+    output_path_synopses = f'{documents_output_dir_path}/wordtree_synopses_{keyword}'
+
+    transcripts_g.render(output_path_transcripts) 
+    print(f"Transcripts WordTree for keyword '{keyword}' generated")
+    synopses_g.render(output_path_synopses) 
+    print(f"Synopses WordTree for keyword '{keyword}' generated")
 
 # Load spaCy's English model
 def load_spacy_model():
