@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any
 from wordcloud import WordCloud, STOPWORDS
 import wordtree as WordTree
+import spacy
 import matplotlib.pyplot as plt
 
 current_file_path = Path(__file__)
@@ -206,6 +207,43 @@ def wordtree(df : pd.DataFrame, keyword):
     output_path = f'{documents_output_dir_path}/wordtree_{keyword}'
     g.render(output_path) 
 
+# Load spaCy's English model
+def load_spacy_model():
+    nlp = spacy.load("en_core_web_sm")
+    return nlp
+
+# Function to extract entities
+def extract_entities(text):
+    nlp = load_spacy_model()
+    doc = nlp(text)
+    entities = [(ent.text, ent.label_) for ent in doc.ents]
+    return entities
+
+# Get entities from each episode
+def get_entities_episode(df : pd.DataFrame):
+    entities_list = []
+    for _, row in df.iterrows():
+        entities = extract_entities(str(row['transcript']))
+        entities_list.append(entities)
+    return entities_list
+
+# Draw entities plot, grouping episodes by 'season'
+def draw_entities_season(df : pd.DataFrame, output_path : Path):
+    for season in df['season'].unique():
+        entities_list = get_entities_episode(df[df['season'] == season])
+        entities_df = pd.DataFrame([entity for entities in entities_list for entity in entities], columns=['Entity', 'Label'])
+        if not entities_df.empty:
+            entities_df['Frequency'] = entities_df.groupby('Entity')['Entity'].transform('count')
+            entities_df.drop_duplicates(subset=['Label'], inplace=True)
+            entities_df.plot(kind='bar', x='Entity', y='Frequency')
+            plt.xlabel('Entities')
+            plt.ylabel('Frequency')
+            plt.title(f"Entities in Season {season}")
+            plt.tight_layout(pad = 2)
+            plt.savefig(f"{output_path}/entities_season_{season}.png")
+            plt.close()
+            print(f"Entities in Season {season} plotted")
+
 # Generation of plots for data analysis
 def data_analysis(df : pd.DataFrame):
     airdates = set(df['airdate'])
@@ -252,6 +290,9 @@ def data_analysis(df : pd.DataFrame):
     plt.tight_layout()  
     plt.savefig(f'{documents_output_dir_path}/views_per_year.png', format='png')
     plt.close()
+    
+    # Generate Named Entity Recognition (NER) plots
+    draw_entities_season(df, documents_output_dir_path)
     
 
 for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
