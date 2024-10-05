@@ -5,6 +5,7 @@ from wordcloud import WordCloud, STOPWORDS
 import wordtree as WordTree
 import spacy
 import matplotlib.pyplot as plt
+import numpy as np
 
 current_file_path = Path(__file__)
 data_dir_path = current_file_path.parent.parent
@@ -377,6 +378,20 @@ def seasons_viewing_analysis(df: pd.DataFrame):
     plt.close()
 
     print("Line graph for views per season generated")
+
+def episode_ranking(df: pd.DataFrame, top_n=20): 
+    ranked_episodes = df[['episode', 'us_viewers']].sort_values(by='us_viewers', ascending=False).head(top_n)
+
+    plt.figure(figsize=(12, top_n * 0.4))  
+    plt.barh(ranked_episodes['episode'].astype(str), ranked_episodes['us_viewers'], color='pink')
+    plt.xlabel('Total US Viewers (in millions)')
+    plt.title(f'Top {top_n} Episodes by Total US Viewers')
+    plt.gca().invert_yaxis()  
+    plt.tight_layout()
+    plt.savefig(f"{documents_output_dir_path}/top_{top_n}_episode_ranking.png", format='png')
+    plt.close()
+
+    print("Episode ranking plot generated")
     
 for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     output_raw_stats_path = f"{documents_output_dir_path}/{f.stem}_{f.suffix[1:]}_stats.txt"
@@ -409,6 +424,7 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     else:
         continue
 
+    episode_ranking(clean_df, 20) # Change last number to adjust the number of episodes that appear in the plot
     seasons_viewing_analysis(clean_df)
     analyze_viewers_per_animator(clean_df)
     analyze_viewers_per_writer(clean_df)
