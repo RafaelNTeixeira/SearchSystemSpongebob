@@ -305,12 +305,32 @@ def data_analysis(df : pd.DataFrame):
     
     # Generate Named Entity Recognition (NER) plots
     draw_entities_season(df, documents_output_dir_path)
-    
 
+def character_frequency(df: pd.DataFrame, output_path: Path, top_n=50):
+    character_list = df['characters'].explode().str.strip().tolist()
+    character_frequency = pd.Series(character_list).value_counts()
+
+    with open(output_path, 'w') as f:
+        for character, count in character_frequency.items():
+            f.write(f"{character}: {count}\n")
+
+    character_frequency_top_n = character_frequency.head(top_n)
+    plt.figure(figsize=(14, 8))
+    character_frequency_top_n.plot(kind='bar', color='skyblue', width=0.6)
+    plt.xlabel('Characters')
+    plt.ylabel('Frequency')
+    plt.title(f'Top {top_n} Character Frequency Distribution')
+    plt.xticks(rotation=45, ha='right', fontsize=12)
+    plt.tight_layout(pad=2)
+    plt.savefig(f'{documents_output_dir_path}/character_frequency.png', format='png')
+    plt.close()
+
+    
 for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     output_raw_stats_path = f"{documents_output_dir_path}/{f.stem}_{f.suffix[1:]}_stats.txt"
     output_clean_stats_path = f"{documents_output_dir_path}/{f.stem[:-4]}_clean_{f.suffix[1:]}_stats.txt"
     output_clean_data_path = f"{clean_output_dir_path}/{f.stem[:-4]}_clean{f.suffix}"
+    output_character_freq_path = f"{documents_output_dir_path}/{f.stem[:-4]}_character_frequency_{f.suffix[1:]}.txt"
     if f.suffix[1:] == "json":
         file_type = "json"
         raw_df = pd.read_json(f)
@@ -336,7 +356,8 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
         clean_df.to_csv(output_clean_data_path, index=False)
     else:
         continue
-    
+
+    character_frequency(clean_df, output_character_freq_path)
     wordcloud(clean_df)
     data_analysis(clean_df)
     wordtree(clean_df, 'spongebob') # Insert keyword to make a wordtree
