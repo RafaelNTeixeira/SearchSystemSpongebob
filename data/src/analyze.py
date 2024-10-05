@@ -316,7 +316,7 @@ def character_frequency(df: pd.DataFrame, output_path: Path, top_n=50):
 
     character_frequency_top_n = character_frequency.head(top_n)
     plt.figure(figsize=(14, 8))
-    character_frequency_top_n.plot(kind='bar', color='skyblue', width=0.6)
+    character_frequency_top_n.plot(kind='bar', color='pink', width=0.6)
     plt.xlabel('Characters')
     plt.ylabel('Frequency')
     plt.title(f'Top {top_n} Character Frequency Distribution')
@@ -325,6 +325,41 @@ def character_frequency(df: pd.DataFrame, output_path: Path, top_n=50):
     plt.savefig(f'{documents_output_dir_path}/character_frequency.png', format='png')
     plt.close()
 
+    print("Top_n plot for character frequency generated")
+
+def analyze_viewers_per_writer(df: pd.DataFrame):
+    exploded_df = df.explode('writers')
+    viewers_per_writer = exploded_df.groupby('writers')['us_viewers'].sum().reset_index()
+
+    viewers_per_writer = viewers_per_writer.sort_values(by='us_viewers', ascending=False)
+    plt.figure(figsize=(18, 8))
+    plt.bar(viewers_per_writer['writers'], viewers_per_writer['us_viewers'], color='pink', width=0.6)
+    plt.xlabel('Writers')
+    plt.ylabel('Total US Viewers (in millions)')
+    plt.title('Total US Viewers per Writer')
+    plt.xticks(rotation=45, ha='right', fontsize=12)
+    plt.tight_layout(pad=2)
+    plt.savefig(f'{documents_output_dir_path}/viewers_per_writer.png', format='png')
+    plt.close()
+
+    print("Bar plot for viewers per writer generated")
+
+def analyze_viewers_per_animator(df: pd.DataFrame):
+    exploded_df = df.explode('animation')
+    viewers_per_animator = exploded_df.groupby('animation')['us_viewers'].sum().reset_index()
+
+    viewers_per_animator = viewers_per_animator.sort_values(by='us_viewers', ascending=False)
+    plt.figure(figsize=(18, 8))
+    plt.bar(viewers_per_animator['animation'], viewers_per_animator['us_viewers'], color='pink', width=0.6)
+    plt.xlabel('Writers')
+    plt.ylabel('Total US Viewers (in millions)')
+    plt.title('Total US Viewers per animator')
+    plt.xticks(rotation=45, ha='right', fontsize=12)
+    plt.tight_layout(pad=2)
+    plt.savefig(f'{documents_output_dir_path}/viewers_per_animator.png', format='png')
+    plt.close()
+
+    print("Bar plot for viewers per animator generated")
     
 for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     output_raw_stats_path = f"{documents_output_dir_path}/{f.stem}_{f.suffix[1:]}_stats.txt"
@@ -357,7 +392,9 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     else:
         continue
 
-    character_frequency(clean_df, output_character_freq_path)
+    analyze_viewers_per_animator(clean_df)
+    analyze_viewers_per_writer(clean_df)
+    character_frequency(clean_df, output_character_freq_path, 50) # Change last number to adjust the number of characters that appear in the plot
     wordcloud(clean_df)
     data_analysis(clean_df)
     wordtree(clean_df, 'spongebob') # Insert keyword to make a wordtree
