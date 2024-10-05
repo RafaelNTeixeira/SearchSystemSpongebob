@@ -185,7 +185,7 @@ def wordcloud(df : pd.DataFrame):
     # Create plot
     plt.figure(figsize = (8, 8), facecolor = None)
     plt.imshow(wordcloud_transcripts)
-    plt.axis("off")
+    plt.axis("off") 
     plt.tight_layout(pad = 0)
 
     # Save plot as png
@@ -330,8 +330,8 @@ def character_frequency(df: pd.DataFrame, output_path: Path, top_n=50):
 def analyze_viewers_per_writer(df: pd.DataFrame):
     exploded_df = df.explode('writers')
     viewers_per_writer = exploded_df.groupby('writers')['us_viewers'].sum().reset_index()
-
     viewers_per_writer = viewers_per_writer.sort_values(by='us_viewers', ascending=False)
+
     plt.figure(figsize=(18, 8))
     plt.bar(viewers_per_writer['writers'], viewers_per_writer['us_viewers'], color='pink', width=0.6)
     plt.xlabel('Writers')
@@ -360,6 +360,23 @@ def analyze_viewers_per_animator(df: pd.DataFrame):
     plt.close()
 
     print("Bar plot for viewers per animator generated")
+
+def seasons_viewing_analysis(df: pd.DataFrame): 
+
+    season_views = df.groupby('season')['us_viewers'].sum().reset_index()
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(season_views['season'], season_views['us_viewers'], marker='o', color='pink', linestyle='-')
+    plt.xlabel('Season')
+    plt.ylabel('Total US Viewers (in millions)')
+    plt.title('Total US Viewers per Season')
+    plt.xticks(season_views['season'], rotation=45)
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(f'{documents_output_dir_path}/views_per_season.png', format='png')
+    plt.close()
+
+    print("Line graph for views per season generated")
     
 for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     output_raw_stats_path = f"{documents_output_dir_path}/{f.stem}_{f.suffix[1:]}_stats.txt"
@@ -392,6 +409,7 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     else:
         continue
 
+    seasons_viewing_analysis(clean_df)
     analyze_viewers_per_animator(clean_df)
     analyze_viewers_per_writer(clean_df)
     character_frequency(clean_df, output_character_freq_path, 50) # Change last number to adjust the number of characters that appear in the plot
