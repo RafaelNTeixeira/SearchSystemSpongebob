@@ -6,6 +6,7 @@ import wordtree as WordTree
 import spacy
 import matplotlib.pyplot as plt
 import numpy as np
+import re
 
 current_file_path = Path(__file__)
 data_dir_path = current_file_path.parent.parent
@@ -257,6 +258,64 @@ def draw_entities_season(df : pd.DataFrame, output_path : Path):
             plt.close()
             print(f"Entities in Season {season} plotted")
 
+def extract_character_dialogues(df: pd.DataFrame, season: int, threshold_percentage=0.025):
+    characters = df[df['season'] == season]['characters'].explode()
+    dialogues = df[df['season'] == season]['transcript']
+
+
+    character_dialogues = {}
+    for character, dialogue in zip(characters, dialogues):
+        if character in character_dialogues:
+            character_dialogues[character] += len(re.findall(r'\w+:', dialogue))
+            character_dialogues[character] += len(re.findall(rf'{re.escape(character.split()[0])}:', dialogue))
+
+        else:
+            character_dialogues[character] = len(re.findall(r'\w+:', dialogue))
+            character_dialogues[character] += len(re.findall(rf'{re.escape(character.split()[0])}:', dialogue))
+    
+
+    # Remove characters with no dialogues
+    character_dialogues = {k: v for k, v in character_dialogues.items() if v > 0}
+
+    # If character has less than threshold_percentage of the total dialogues, group them as 'Others'
+    total_dialogues = sum(character_dialogues.values())
+    threshold = threshold_percentage * total_dialogues
+    others = 0
+
+    characters_to_delete = []
+    for character, dialogues in character_dialogues.items():
+        if dialogues < threshold:
+            others += dialogues
+            characters_to_delete.append(character)
+    
+    for character in characters_to_delete:
+        del character_dialogues[character]
+
+    if others > 0:
+        character_dialogues['Others'] = others
+              
+    return character_dialogues
+
+                
+def draw_character_dialogues(character_dialogues, season: int):
+    characters = list(character_dialogues.keys())
+    dialogues = list(character_dialogues.values())
+
+    plt.figure(figsize=(12, 6))
+    plt.pie(dialogues, labels=characters, autopct='%1.1f%%', startangle=140, colors=plt.cm.Paired.colors)
+    plt.title(f'Character Dialogues in Season {season}')
+    plt.tight_layout(pad=2)
+    plt.savefig(f'{documents_output_dir_path}/character_dialogues_season_{season}.png', format='png')
+    plt.close()
+    print(f"Character dialogues in Season {season} plotted")
+
+def analyze_character_dialogues(df: pd.DataFrame):
+    for season in df['season'].unique():
+        character_dialogues = extract_character_dialogues(df, season)
+        draw_character_dialogues(character_dialogues, season)
+
+    print("Character dialogues analysis completed")
+
 # Generation of plots for data analysis
 def data_analysis(df : pd.DataFrame):
     airdates = set(df['airdate'])
@@ -303,6 +362,8 @@ def data_analysis(df : pd.DataFrame):
     plt.tight_layout()  
     plt.savefig(f'{documents_output_dir_path}/views_per_year.png', format='png')
     plt.close()
+
+    analyze_character_dialogues(df)
     
     # Generate Named Entity Recognition (NER) plots
     draw_entities_season(df, documents_output_dir_path)
