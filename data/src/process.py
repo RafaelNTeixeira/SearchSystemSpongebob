@@ -54,7 +54,7 @@ def clean_viewers(df : pd.DataFrame):
             if tokens[i][0].isnumeric() and tokens[i+1][0].isnumeric():
                 return tokens[i]
         return "0.0"
-
+    df['us_viewers'] = df['us_viewers'].fillna("0.0")
     df['us_viewers'] = df.apply(choose_viewers, axis=1)
     df['us_viewers'] = pd.to_numeric(df['us_viewers'])
 
@@ -83,6 +83,8 @@ def clean_running_time(df : pd.DataFrame):
         return create_timedelta(tokens[0]) 
     
     df['running_time'] = df.apply(choose_running_time, axis=1)
+    df['running_time'] = df['running_time'].astype(str)
+    df['running_time'] = df.apply(lambda x: x['running_time'].split()[2], axis=1)
 
 def clean_animation(df : pd.DataFrame):
     if (type(df['animation'][0]) == type("")):
@@ -110,9 +112,9 @@ def clean_characters(df: pd.DataFrame):
 
 def clean_musics(df: pd.DataFrame):
     if (type(df['musics'][0]) == type("")):
-        df['musics'] = df.apply(lambda x: [m for m in x['musics'].split(',') if m.strip()[0] != '['], axis=1)
+        df['musics'] = df.apply(lambda x: [m for m in x['musics'].split(',') if m.strip()[0] != '[' and m.strip()[0:5] != "https"], axis=1)
     elif (type(df['musics'][0]) == type([])):
-        df['musics'] = df.apply(lambda x: [m for m in x['musics'] if m.strip()[0] != '['], axis=1)
+        df['musics'] = df.apply(lambda x: [m for m in x['musics'] if m.strip()[0] != '[' and m.strip()[0:5] != "https"], axis=1)
     else :
         print("CHECK CLEAN_MUSICS", type(df['musics'][0])) 
 
@@ -160,11 +162,14 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     else:
         continue
 
+
+
     file_stats(raw_df, output_raw_stats_path)
     clean_df = clean_data(raw_df)
     file_stats(clean_df, output_clean_stats_path)
 
     clean_df['airdate'] = clean_df['airdate'].astype(str)
+    clean_df = clean_df.sort_values(['season', 'episode'])
     if f.suffix[1:] == "json":
         clean_df.to_json(output_clean_data_path, orient='records', force_ascii=False)
     elif f.suffix[1:] == "csv":

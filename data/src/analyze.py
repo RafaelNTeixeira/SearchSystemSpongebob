@@ -128,41 +128,32 @@ def draw_entities_season(df : pd.DataFrame, output_path : Path):
             plt.close()
             print(f"Entities in Season {season} plotted")
 
-def extract_character_dialogues(df: pd.DataFrame, season: int, threshold_percentage=0.025):
-    characters = df[df['season'] == season]['characters'].explode()
+def extract_character_dialogues(df: pd.DataFrame, season: int, threshold_percentage=0.0025):
+    characters = df[df['season'] == season]['characters'].explode().unique()
     dialogues = df[df['season'] == season]['transcript']
 
+    special_names = {
+        "SpongeBob SquarePants": ["SpongeBob", "SpongeBob SquarePants"],
+        "Squidward Tentacles": ["Squidward", "Squidward Tentacles"],
+        "Gary the Snail": ["Gary", "Gary the Snail"],
+        "Patrick Star": ["Patrick", "Patrick Star"],
+        "Sheldon J. Plankton": ["Plankton", "Sheldon", "Sheldon J. Plankton"],
+        "Sandy Cheeks": ["Sandy", "Sandy Cheeks"],
+        "Eugene H. Krabs": ["Mr. Krabs", "Krabs", "Eugene H. Krabs", "Eugene Harold Krabs"]
+    }
 
-    character_dialogues = {}
-    for character, dialogue in zip(characters, dialogues):
-        if character in character_dialogues:
-            character_dialogues[character] += len(re.findall(r'\w+:', dialogue))
-            character_dialogues[character] += len(re.findall(rf'{re.escape(character.split()[0])}:', dialogue))
+    character_dialogues = {name: 0 for name in special_names}
+    character_dialogues["Others"] = 0
 
-        else:
-            character_dialogues[character] = len(re.findall(r'\w+:', dialogue))
-            character_dialogues[character] += len(re.findall(rf'{re.escape(character.split()[0])}:', dialogue))
-    
+    for dialogue in dialogues:
+        number_dialogues = len(re.findall(r'\w+:', dialogue))
+        for character, names in special_names.items():
+            for name in names:
+                num = len(re.findall(rf'{re.escape(name)}:', dialogue))
+                character_dialogues[character] += num
+                number_dialogues -= num
 
-    # Remove characters with no dialogues
-    character_dialogues = {k: v for k, v in character_dialogues.items() if v > 0}
-
-    # If character has less than threshold_percentage of the total dialogues, group them as 'Others'
-    total_dialogues = sum(character_dialogues.values())
-    threshold = threshold_percentage * total_dialogues
-    others = 0
-
-    characters_to_delete = []
-    for character, dialogues in character_dialogues.items():
-        if dialogues < threshold:
-            others += dialogues
-            characters_to_delete.append(character)
-    
-    for character in characters_to_delete:
-        del character_dialogues[character]
-
-    if others > 0:
-        character_dialogues['Others'] = others
+        character_dialogues["Others"] += number_dialogues if number_dialogues >= 0 else 0
               
     return character_dialogues
 
@@ -324,29 +315,22 @@ def episode_ranking(df: pd.DataFrame, top_n=20):
 
     print("Episode ranking plot generated")
     
-for f in Path(clean_dir_path).iterdir(): # Loops through raw directory
-    output_character_freq_path = f"{documents_output_dir_path}/{f.stem[:-4]}_character_frequency_{f.suffix[1:]}.txt"
-    if f.suffix[1:] == "json":
-        file_type = "json"
-        clean_df = pd.read_json(f)
-    elif f.suffix[1:] == "csv":
-        file_type = "csv"
-        clean_df = pd.read_csv(f, sep=",")
-    else:
-        continue
+output_character_freq_path = f"{documents_output_dir_path}/output_clean_character_frequency.txt"
+clean_df = pd.read_json(f"{clean_dir_path}/output_clean.json")
 
-    clean_df['airdate'] = pd.to_datetime(clean_df['airdate'], format="%Y-%m-%d")
 
-    episode_ranking(clean_df, 20) # Change last number to adjust the number of episodes that appear in the plot
-    seasons_viewing_analysis(clean_df)
-    analyze_viewers_per_animator(clean_df)
-    analyze_viewers_per_writer(clean_df)
-    character_frequency(clean_df, output_character_freq_path, 50) # Change last number to adjust the number of characters that appear in the plot
-    wordcloud(clean_df)
-    data_analysis(clean_df)
-    wordtree(clean_df, 'spongebob') # Insert keyword to make a wordtree
-    analyze_character_dialogues(clean_df)
-    draw_entities_season(clean_df, documents_output_dir_path)
-    break
+clean_df['airdate'] = pd.to_datetime(clean_df['airdate'], format="%Y-%m-%d")
+print(clean_df['characters'][0][0])
+
+episode_ranking(clean_df, 20) # Change last number to adjust the number of episodes that appear in the plot
+seasons_viewing_analysis(clean_df)
+analyze_viewers_per_animator(clean_df)
+analyze_viewers_per_writer(clean_df)
+character_frequency(clean_df, output_character_freq_path, 50) # Change last number to adjust the number of characters that appear in the plot
+wordcloud(clean_df)
+data_analysis(clean_df)
+wordtree(clean_df, 'spongebob') # Insert keyword to make a wordtree
+analyze_character_dialogues(clean_df)
+# draw_entities_season(clean_df, documents_output_dir_path)
 
     
