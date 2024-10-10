@@ -320,7 +320,6 @@ clean_df = pd.read_json(f"{clean_dir_path}/output_clean.json")
 
 
 clean_df['airdate'] = pd.to_datetime(clean_df['airdate'], format="%Y-%m-%d")
-print(clean_df['characters'][0][0])
 
 episode_ranking(clean_df, 20) # Change last number to adjust the number of episodes that appear in the plot
 seasons_viewing_analysis(clean_df)
@@ -331,6 +330,4 @@ wordcloud(clean_df)
 data_analysis(clean_df)
 wordtree(clean_df, 'spongebob') # Insert keyword to make a wordtree
 analyze_character_dialogues(clean_df)
-# draw_entities_season(clean_df, documents_output_dir_path)
-
-    
+draw_entities_season(clean_df, documents_output_dir_path)
