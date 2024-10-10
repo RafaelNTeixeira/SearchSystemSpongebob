@@ -1,7 +1,7 @@
 # This is simply for easier process execs
 .PHONY: clean requirements all crawl clean analyze
 
-all: clean requirements crawl process analyze
+all: clean requirements process analyze
 
 requirements:
 	pip install -r requirements.txt
@@ -21,7 +21,9 @@ process:
 analyze:
 	python data/src/analyze.py
 
-clean:
+cleanRaw:
 	rm -f data/raw/*
+
+clean:
 	rm -f data/clean/*
 	rm -f data/documents/*
