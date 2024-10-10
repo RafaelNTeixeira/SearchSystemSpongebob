@@ -335,6 +335,8 @@ for f in Path(clean_dir_path).iterdir(): # Loops through raw directory
     else:
         continue
 
+    clean_df['airdate'] = pd.to_datetime(clean_df['airdate'], format="%Y-%m-%d")
+
     episode_ranking(clean_df, 20) # Change last number to adjust the number of episodes that appear in the plot
     seasons_viewing_analysis(clean_df)
     analyze_viewers_per_animator(clean_df)

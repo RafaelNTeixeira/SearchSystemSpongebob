@@ -163,9 +163,10 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
     file_stats(raw_df, output_raw_stats_path)
     clean_df = clean_data(raw_df)
     file_stats(clean_df, output_clean_stats_path)
-    
+
+    clean_df['airdate'] = clean_df['airdate'].astype(str)
     if f.suffix[1:] == "json":
-        clean_df.to_json(output_clean_data_path, orient='records', date_format='iso', force_ascii=False)
+        clean_df.to_json(output_clean_data_path, orient='records', force_ascii=False)
     elif f.suffix[1:] == "csv":
         clean_df.to_csv(output_clean_data_path, index=False)
     else:
