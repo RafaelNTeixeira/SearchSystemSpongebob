@@ -5,6 +5,7 @@ all: clean requirements crawl process analyze
 
 requirements:
 	pip install -r requirements.txt
+	python -m spacy download en_core_web_sm
 
 crawl:
 	cd spongebobCrawler; \
@@ -15,7 +16,7 @@ crawl-print:
 	scrapy crawl season_spider -a enable_print=True
 
 process:
-	python data/src/clean.py
+	python data/src/process.py
 
 analyze:
 	python data/src/analyze.py

@@ -1,7 +1,7 @@
 matplotlib==3.9.2
-numpy==2.1.2
+numpy==2.0
 pandas==2.2.3
-spacy==3.7.5
+spacy==3.8.2
 wordcloud==1.9.3
 wordtree==0.1.0
 Scrapy==2.11.2
