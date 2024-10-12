@@ -178,7 +178,7 @@ def analyze_character_dialogues(df: pd.DataFrame):
     print("Character dialogues analysis completed")
 
 # Generation of plots for data analysis
-def data_analysis(df : pd.DataFrame):
+def date_analysis(df : pd.DataFrame):
     airdates = set(df['airdate'])
 
     # Retrieve years where episodes were aired
@@ -327,7 +327,7 @@ analyze_viewers_per_animator(clean_df)
 analyze_viewers_per_writer(clean_df)
 character_frequency(clean_df, output_character_freq_path, 50) # Change last number to adjust the number of characters that appear in the plot
 wordcloud(clean_df)
-data_analysis(clean_df)
+date_analysis(clean_df)
 wordtree(clean_df, 'spongebob') # Insert keyword to make a wordtree
 analyze_character_dialogues(clean_df)
 draw_entities_season(clean_df, documents_output_dir_path)
