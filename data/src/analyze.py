@@ -7,7 +7,7 @@ import spacy
 import matplotlib.pyplot as plt
 import numpy as np
 import re
-
+import seaborn as sns
 
 current_file_path = Path(__file__)
 data_dir_path = current_file_path.parent.parent
@@ -301,6 +301,58 @@ def seasons_viewing_analysis(df: pd.DataFrame):
 
     print("Line graph for views per season generated")
 
+def writer_character_correlation(df: pd.DataFrame):
+    exploded_df = df.explode('characters').explode('writers')
+    character_counts = exploded_df['characters'].value_counts()
+    writer_counts = exploded_df['writers'].value_counts()
+    top_5_characters = character_counts.head(5).index.tolist()
+    top_5_writers = writer_counts.head(5).index.tolist()
+    filtered_df = exploded_df[exploded_df['characters'].isin(top_5_characters) & 
+                              exploded_df['writers'].isin(top_5_writers)]
+    writer_character_count = filtered_df.groupby(['writers', 'characters']).size().reset_index(name='count')
+    writer_character_matrix = writer_character_count.pivot_table(index='writers', 
+                                                                 columns='characters', 
+                                                                 values='count', 
+                                                                 fill_value=0)
+    writer_character_matrix = writer_character_matrix.reindex(index=top_5_writers, columns=top_5_characters, fill_value=0)
+    
+    plt.figure(figsize=(10, 5)) 
+    sns.heatmap(writer_character_matrix, cmap='coolwarm', annot=True, fmt='.1f', cbar=True)
+    plt.xlabel('Characters')
+    plt.ylabel('Writers')
+    plt.title('Correlation between the appearance of a charater and a writer')
+    plt.tight_layout()
+    plt.savefig(f'{documents_output_dir_path}/writer_character_correlation.png', format='png')
+    plt.close()
+
+    print("Writer-character correlation plot for top 5 characters and writers generated")
+
+def animator_character_correlation(df: pd.DataFrame):
+    exploded_df = df.explode('characters').explode('animation')
+    character_counts = exploded_df['characters'].value_counts()
+    animator_counts = exploded_df['animation'].value_counts()
+    top_5_characters = character_counts.head(5).index.tolist()
+    top_5_animators = animator_counts.head(5).index.tolist()
+    filtered_df = exploded_df[exploded_df['characters'].isin(top_5_characters) & 
+                              exploded_df['animation'].isin(top_5_animators)]
+    animator_character_count = filtered_df.groupby(['animation', 'characters']).size().reset_index(name='count')
+    animator_character_matrix = animator_character_count.pivot_table(index='animation', 
+                                                                     columns='characters', 
+                                                                     values='count', 
+                                                                     fill_value=0)
+    animator_character_matrix = animator_character_matrix.reindex(index=top_5_animators, columns=top_5_characters, fill_value=0)
+
+    plt.figure(figsize=(10, 5)) 
+    sns.heatmap(animator_character_matrix, cmap='coolwarm', annot=True, fmt='.1f', cbar=True)
+    plt.xlabel('Characters')
+    plt.ylabel('Animators')
+    plt.title('Correlation between the appearance of a charater and an animator')
+    plt.tight_layout()
+    plt.savefig(f'{documents_output_dir_path}/animator_character_correlation.png', format='png')
+    plt.close()
+
+    print("Animator-character correlation plot for top 5 characters and animators generated")
+
 def episode_ranking(df: pd.DataFrame, top_n=20): 
     ranked_episodes = df[['episode', 'us_viewers']].sort_values(by='us_viewers', ascending=False).head(top_n)
 
@@ -321,6 +373,8 @@ clean_df = pd.read_json(f"{clean_dir_path}/output_clean.json")
 
 clean_df['airdate'] = pd.to_datetime(clean_df['airdate'], format="%Y-%m-%d")
 
+animator_character_correlation(clean_df)
+writer_character_correlation(clean_df)
 episode_ranking(clean_df, 20) # Change last number to adjust the number of episodes that appear in the plot
 seasons_viewing_analysis(clean_df)
 analyze_viewers_per_animator(clean_df)
