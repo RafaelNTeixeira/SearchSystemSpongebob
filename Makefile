@@ -1,5 +1,5 @@
 # This is simply for easier process execs
-.PHONY: clean requirements all crawl clean analyze
+.PHONY: clean requirements all crawl clean analyze solr
 
 all: clean requirements process analyze
 
@@ -27,3 +27,7 @@ cleanRaw:
 clean:
 	rm -f data/clean/*
 	rm -f data/documents/*
+
+solr:
+	cd solr; \
+	make all
