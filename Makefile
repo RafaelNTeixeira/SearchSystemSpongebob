@@ -1,5 +1,5 @@
 # This is simply for easier process execs
-.PHONY: clean requirements all crawl clean analyze solr solr_start solr_schema solr_populate
+.PHONY: clean requirements all crawl clean analyze solr
 
 all: clean requirements process analyze
 
