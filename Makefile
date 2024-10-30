@@ -24,6 +24,9 @@ analyze:
 cleanRaw:
 	rm -f data/raw/*
 
+index:
+	python solr/indexTranscript.py
+
 clean:
 	rm -f data/clean/*
 	rm -f data/documents/*
