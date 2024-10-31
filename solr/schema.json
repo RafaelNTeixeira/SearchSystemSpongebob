@@ -1,33 +1,92 @@
 {
-	"add-field-type": [
+    "add-field-type": [
         {
-            "name":"courseTitle",
-            "class":"solr.TextField",
-            "indexAnalyzer":{
-                "tokenizer":{
-                    "class":"solr.StandardTokenizerFactory"
+            "name": "text_general",
+            "class": "solr.TextField",
+            "indexAnalyzer": {
+                "tokenizer": {
+                    "class": "solr.StandardTokenizerFactory"
                 },
-                "filters":[
-                    {"class":"solr.ASCIIFoldingFilterFactory", "preserveOriginal":true},
-                    {"class":"solr.LowerCaseFilterFactory"}
+                "filters": [
+                    {
+                        "class": "solr.ASCIIFoldingFilterFactory",
+                        "preserveOriginal": true
+                    },
+                    {
+                        "class": "solr.LowerCaseFilterFactory"
+                    }
                 ]
             },
-            "queryAnalyzer":{
-                "tokenizer":{
-                    "class":"solr.StandardTokenizerFactory"
+            "queryAnalyzer": {
+                "tokenizer": {
+                    "class": "solr.StandardTokenizerFactory"
                 },
-                "filters":[
-                    {"class":"solr.ASCIIFoldingFilterFactory", "preserveOriginal":true},
-                    {"class":"solr.LowerCaseFilterFactory"}
+                "filters": [
+                    {
+                        "class": "solr.ASCIIFoldingFilterFactory",
+                        "preserveOriginal": true
+                    },
+                    {
+                        "class": "solr.LowerCaseFilterFactory"
+                    }
                 ]
             }
+        },
+        {
+            "name": "date",
+            "class": "solr.TrieDateField",
+            "precisionStep": 0,
+            "positionIncrementGap": 0
+        },
+        {
+            "name": "float",
+            "class": "solr.TrieFloatField",
+            "precisionStep": 0,
+            "positionIncrementGap": 0
         }
     ],
     "add-field": [
         {
-            "name": "teste",
-            "type": "courseTitle",
+            "name": "url",
+            "type": "string",
+            "indexed": false
+        },
+        {
+            "name": "season",
+            "type": "IntPointField",
             "indexed": true
+        },
+        {
+            "name": "episode",
+            "type": "string",
+            "indexed": false
+        },
+        {
+            "name": "us_viewers",
+            "type": "float",
+            "indexed": false
+        },
+        {
+            "name": "running_time",
+            "type": "string",
+            "indexed": false
+        },
+        {
+            "name": "airdate",
+            "type": "date",
+            "indexed": true
+        },
+        {
+            "name": "animation",
+            "type": "text_general",
+            "indexed": false,
+            "multiValued": true
+        },
+        {
+            "name": "musics",
+            "type": "text_general",
+            "indexed": false,
+            "multiValued": true
         }
     ]
 }
