@@ -8,9 +8,8 @@ current_file_path = Path(__file__)
 data_dir_path = current_file_path.parent
 
 SOLR_URL = "http://localhost:8983/solr/"
-SOLR_ADMIN_URL = "http://localhost:8983/solr/admin/cores"
 DOCKER_CONTAINER_NAME = "spongebob_solr"
-CORE_NAME = "transcripts"
+CORE_NAME = "episodes"
 
 JSON_FILE_PATH = f"{data_dir_path}/spongebob.json"
 
@@ -41,11 +40,8 @@ def parse_transcript(transcript):
 
 def extract_dialogue_and_actions(dialogue):
     action_pattern = r'\[([^\]]*)\]'
-
     actions = re.findall(action_pattern, dialogue)
-    
     cleaned_dialogue = re.sub(action_pattern, '', dialogue)
-    
     cleaned_dialogue = cleaned_dialogue.strip()
 
     return cleaned_dialogue, actions
@@ -87,7 +83,7 @@ def add_fields_to_schema(solr_url, core_name):
     ]
     
     for field in fields:
-        response = requests.post(
+        response = requests.post( 
             f"{solr_url}{core_name}/schema/fields",
             headers={'Content-Type': 'application/json'},
             json={"add-field": field}
@@ -114,18 +110,21 @@ def parse_and_index_transcripts(json_file_path, solr_url, core_name):
         if transcript:
             parsed_transcript = parse_transcript(transcript)
             doc = {
-                "id": episode.get("url", ""), # Using URL
+                "id": episode.get("url", ""), # Using transcript URL
                 "transcript": parsed_transcript
             }
             documents.append(doc)
     
-    response = requests.post(f"{solr_url}{core_name}/update?commit=true", json=documents)
+    response = requests.post(
+        f"{solr_url}{core_name}/update?commit=true",
+        headers={'Content-Type': 'application/json'},
+        json=documents)
     
     if response.status_code == 200:
         print("Data indexed successfully")
     else:
         print("Error indexing data:", response.text)
 
-    # print(json.dumps(documents, indent=2))  # Print documents for verification
+    # print(json.dumps(documents, indent=2)) # Print documents for verification
 
 parse_and_index_transcripts(JSON_FILE_PATH, SOLR_URL, CORE_NAME)
