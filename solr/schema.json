@@ -14,6 +14,9 @@
                     },
                     {
                         "class": "solr.LowerCaseFilterFactory"
+                    },
+                    {
+                        "class": "solr.EnglishMinimalStemFilterFactory"
                     }
                 ]
             },
@@ -28,6 +31,9 @@
                     },
                     {
                         "class": "solr.LowerCaseFilterFactory"
+                    },
+                    {
+                        "class": "solr.EnglishMinimalStemFilterFactory"
                     }
                 ]
             }
