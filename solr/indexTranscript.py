@@ -1,11 +1,16 @@
 import json
 import re
+import requests
+import subprocess
 from pathlib import Path
 
 current_file_path = Path(__file__)
 data_dir_path = current_file_path.parent
 
-SOLR_URL = "http://localhost:8983/solr/spongebob_solr/" # Dont know which place exactly to insert this in
+SOLR_URL = "http://localhost:8983/solr/"
+SOLR_ADMIN_URL = "http://localhost:8983/solr/admin/cores"
+DOCKER_CONTAINER_NAME = "spongebob_solr"
+CORE_NAME = "transcripts"
 
 JSON_FILE_PATH = f"{data_dir_path}/spongebob.json"
 
@@ -45,7 +50,59 @@ def extract_dialogue_and_actions(dialogue):
 
     return cleaned_dialogue, actions
 
-def parse_and_index_transcripts(json_file_path):
+def create_core(core_name):
+    create_command = [
+        "docker", "exec", DOCKER_CONTAINER_NAME,
+        "bin/solr", "create_core", "-c", core_name
+    ]
+    
+    try:
+        subprocess.run(create_command, check=True)
+        print(f"Core '{core_name}' created successfully.")
+    except subprocess.CalledProcessError as e:
+        print("Error creating core:", e)
+
+def check_core_exists(solr_url, core_name):
+    # Check if the core is available in solr
+    ping_url = f"{solr_url}{core_name}/admin/ping"
+    try:
+        response = requests.get(ping_url)
+        if response.status_code == 200:
+            print(f"Core '{core_name}' exists. Proceeding with indexing.")
+            return True
+        else:
+            print(f"Core '{core_name}' does not exist. Creating it now...")
+            create_core(core_name)
+            return check_core_exists(solr_url, core_name)
+    except requests.RequestException as e:
+        print("Error checking for core:", e)
+        return False
+
+def add_fields_to_schema(solr_url, core_name):
+    fields = [
+        {"name": "setting", "type": "string", "indexed": True, "stored": True},
+        {"name": "speaker", "type": "string", "indexed": True, "stored": True},
+        {"name": "dialogue", "type": "text_general", "indexed": True, "stored": True},
+        {"name": "actions", "type": "text_general", "indexed": True, "stored": True},
+    ]
+    
+    for field in fields:
+        response = requests.post(
+            f"{solr_url}{core_name}/schema/fields",
+            headers={'Content-Type': 'application/json'},
+            json={"add-field": field}
+        )
+        if response.status_code == 200:
+            print(f"Field '{field['name']}' added successfully.")
+        else:
+            print(f"Error adding field '{field['name']}':", response.text)
+
+def parse_and_index_transcripts(json_file_path, solr_url, core_name):
+    if not check_core_exists(solr_url, core_name):
+        return
+    
+    add_fields_to_schema(solr_url, core_name)
+    
     with open(json_file_path, 'r') as file:
         data = json.load(file)
     
@@ -57,22 +114,18 @@ def parse_and_index_transcripts(json_file_path):
         if transcript:
             parsed_transcript = parse_transcript(transcript)
             doc = {
-                "id": episode.get("url", ""),  # Using URL
+                "id": episode.get("url", ""), # Using URL
                 "transcript": parsed_transcript
             }
             documents.append(doc)
-
-    # Uncomment this section to enable indexing
-    # headers = {"Content-Type": "application/json"}
-    # solr_data = json.dumps(documents)
     
-    # response = requests.post(SOLR_URL, headers=headers, data=solr_data)
+    response = requests.post(f"{solr_url}{core_name}/update?commit=true", json=documents)
     
-    # if response.status_code == 200:
-    #     print("Data indexed successfully")
-    # else:
-    #     print("Error indexing data:", response.text)
+    if response.status_code == 200:
+        print("Data indexed successfully")
+    else:
+        print("Error indexing data:", response.text)
 
-    print(json.dumps(documents[1], indent=2))  # Print documents for verification
+    # print(json.dumps(documents, indent=2))  # Print documents for verification
 
-parse_and_index_transcripts(JSON_FILE_PATH)
+parse_and_index_transcripts(JSON_FILE_PATH, SOLR_URL, CORE_NAME)
