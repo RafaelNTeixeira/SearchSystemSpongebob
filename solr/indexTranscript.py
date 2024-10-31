@@ -110,7 +110,7 @@ def parse_and_index_transcripts(json_file_path, solr_url, core_name):
         if transcript:
             parsed_transcript = parse_transcript(transcript)
             doc = {
-                "id": episode.get("url_transcript", ""), # Using transcript URL
+                "id": episode.get("url", ""), # Using transcript URL
                 "transcript": parsed_transcript
             }
             documents.append(doc)
