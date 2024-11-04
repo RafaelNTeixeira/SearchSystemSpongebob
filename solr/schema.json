@@ -106,6 +106,19 @@
             "indexed": true,
             "stored": true,
             "multiValued": true
+        }, 
+        {
+            "name": "title",
+            "type": "text_general",
+            "indexed": true,
+            "stored": true
+        },
+        {
+            "name": "characters",
+            "type": "text_general",
+            "indexed": true,
+            "stored": true,
+            "multiValued": true
         }
     ]
 }
