@@ -83,6 +83,12 @@
             "indexed": true
         },
         {
+            "name": "synopsis",
+            "type": "text_general",
+            "indexed": true,
+            "stored": true
+        },
+        {
             "name": "animation",
             "type": "text_general",
             "indexed": false,
@@ -92,6 +98,13 @@
             "name": "musics",
             "type": "text_general",
             "indexed": false,
+            "multiValued": true
+        },
+        {
+            "name": "writers",
+            "type": "text_general",
+            "indexed": true,
+            "stored": true,
             "multiValued": true
         }
     ]
