@@ -5,7 +5,10 @@
       "fl": "*",
       "start": "0",
       "q.op": "OR",
-      "fq": "characters:\"Margaret SquarePants\"",
+      "fq": [
+        "characters:\"Margaret SquarePants\"",
+        "characters:\"SpongeBob SquarePants\""
+      ],
       "sort": "score desc",
       "rows": "10",
       "lowercaseOperators": "false",
