@@ -10,4 +10,4 @@ data/raw/*
 data/documents/*
 data/clean/*
 
-evaluation/
+solr/evaluation/*
