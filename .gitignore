@@ -9,3 +9,5 @@ __pycache__/
 data/raw/*
 data/documents/*
 data/clean/*
+
+evaluation/
