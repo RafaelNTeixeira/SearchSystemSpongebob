@@ -110,14 +110,12 @@
         {
             "name": "title",
             "type": "text_general",
-            "indexed": true,
-            "stored": true
+            "indexed": true
         },
         {
             "name": "characters",
             "type": "text_general",
             "indexed": true,
-            "stored": true,
             "multiValued": true
         }
     ]
