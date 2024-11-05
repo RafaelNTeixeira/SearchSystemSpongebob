@@ -86,7 +86,6 @@
             "name": "synopsis",
             "type": "text_general",
             "indexed": true,
-            "stored": true
         },
         {
             "name": "animation",
@@ -104,9 +103,8 @@
             "name": "writers",
             "type": "text_general",
             "indexed": true,
-            "stored": true,
             "multiValued": true
-        }, 
+        },
         {
             "name": "title",
             "type": "text_general",
@@ -117,6 +115,11 @@
             "type": "text_general",
             "indexed": true,
             "multiValued": true
+        },
+        {
+            "name": "transcript",
+            "type": "text_general",
+            "indexed": true
         }
     ]
 }

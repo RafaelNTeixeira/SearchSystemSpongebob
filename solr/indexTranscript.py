@@ -76,10 +76,10 @@ def check_core_exists(solr_url, core_name):
 
 def add_fields_to_schema(solr_url, core_name):
     fields = [
-        {"name": "setting", "type": "string", "indexed": True, "stored": True},
-        {"name": "speaker", "type": "string", "indexed": True, "stored": True},
-        {"name": "dialogue", "type": "text_general", "indexed": True, "stored": True},
-        {"name": "actions", "type": "text_general", "indexed": True, "stored": True},
+        {"name": "setting", "type": "string", "indexed": True, "stored": False},
+        {"name": "speaker", "type": "string", "indexed": True, "stored": False},
+        {"name": "dialogue", "type": "text_general", "indexed": True, "stored": False},
+        {"name": "actions", "type": "text_general", "indexed": True, "stored": False},
     ]
     
     for field in fields:
