@@ -7,7 +7,7 @@
       "q.op": "OR",
       "fq": [
         "characters:\"Margaret SquarePants\"",
-        "characters:\"SpongeBob SquarePants\""
+        "characters:\"Harold SquarePants\""
       ],
       "sort": "score desc",
       "rows": "10",
