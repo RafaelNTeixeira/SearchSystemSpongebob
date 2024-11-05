@@ -1,0 +1,23 @@
+services:
+  solr:
+    container_name: spongebob_solr
+
+    image: solr:9.7
+
+    ports:
+     - "8983:8983"
+
+    volumes:
+      - solr:/data
+
+    command:
+      - solr-precreate
+      - episodes
+
+volumes:
+  solr:
+    driver: local
+    driver_opts:
+      type: none
+      device: data
+      o: bind

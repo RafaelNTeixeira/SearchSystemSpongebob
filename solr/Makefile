@@ -1,24 +1,27 @@
 # This is simply for easier process execs
-.PHONY: all solr_start solr_schema solr_populate
+.PHONY: solr down up schema populate index
 
-all:
-	make solr_start
+solr:
+	make up
 	sleep 3
-	make solr_schema
+	make schema
 	sleep 2
-	make solr_populate
+	make populate
 	sleep 2
 	make index
 
-solr_start:
-	docker run -p 8983:8983 --name spongebob_solr -v ${PWD}:/data -d solr:9 solr-precreate episodes
+down:
+	docker compose -f docker/docker-compose.yml down --remove-orphans -v
 
-solr_schema:
+up:
+	docker compose -f docker/docker-compose.yml up -d
+
+schema:
 	curl -X POST -H 'Content-type:application/json' \
-    --data-binary "@./schema.json" \
+    --data-binary "@./docker/data/schema.json" \
     http://localhost:8983/solr/episodes/schema
 
-solr_populate:
+populate:
 	docker exec -it spongebob_solr bin/post -c episodes /data/spongebob.json
 
 index:
