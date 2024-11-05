@@ -30,4 +30,8 @@ clean:
 
 solr:
 	cd solr; \
-	make all
+	make solr
+
+solr-down:
+	cd solr; \
+	make down	

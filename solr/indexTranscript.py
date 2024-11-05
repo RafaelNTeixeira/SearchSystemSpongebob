@@ -5,7 +5,8 @@ import subprocess
 from pathlib import Path
 
 current_file_path = Path(__file__)
-data_dir_path = current_file_path.parent
+data_dir_path = Path(f"{current_file_path.parent}/docker/data")
+
 
 SOLR_URL = "http://localhost:8983/solr/"
 DOCKER_CONTAINER_NAME = "spongebob_solr"

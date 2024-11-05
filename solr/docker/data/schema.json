@@ -85,7 +85,7 @@
         {
             "name": "synopsis",
             "type": "text_general",
-            "indexed": true,
+            "indexed": true
         },
         {
             "name": "animation",
