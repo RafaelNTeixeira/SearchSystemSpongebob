@@ -1,5 +1,5 @@
 # This is simply for easier process execs
-.PHONY: solr down up schema populate index
+.PHONY: solr down up schema populate index evaluate
 
 solr:
 	make up
@@ -26,3 +26,14 @@ populate:
 
 index:
 	python indexTranscript.py
+
+# To run the evaluation, you can use the following command:
+# make evaluate qN=1
+qN=1 # default query number
+
+evaluate:
+	python scripts/query_solr.py --query queries/q$(qN).json --uri http://localhost:8983/solr --collection episodes | \
+    python scripts/solr2trec.py > evaluation/results_q$(qN)_trec.txt && \
+    cat qrels/qrels$(qN).txt | python scripts/qrels2trec.py > evaluation/qrels_trec_q$(qN).txt && \
+    trec_eval evaluation/qrels_trec_q$(qN).txt evaluation/results_q$(qN)_trec.txt && \
+    cat evaluation/results_q$(qN)_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(qN).txt --output evaluation/prec_rec_q$(qN).png
