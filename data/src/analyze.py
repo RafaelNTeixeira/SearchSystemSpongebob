@@ -231,7 +231,7 @@ def date_analysis(df : pd.DataFrame):
     analyze_character_dialogues(df)
     
     # Generate Named Entity Recognition (NER) plots
-    #draw_entities_season(df, documents_output_dir_path)
+    draw_entities_season(df, documents_output_dir_path)
 
 def character_frequency(df: pd.DataFrame, output_path: Path, top_n=20):
     character_list = df['characters'].explode().str.strip().tolist()
@@ -395,5 +395,5 @@ character_frequency(clean_df, output_character_freq_path, 30) # Change last numb
 wordcloud(clean_df)
 date_analysis(clean_df)
 wordtree(clean_df, 'spongebob') # Insert keyword to make a wordtree
-#analyze_character_dialogues(clean_df)
-#draw_entities_season(clean_df, documents_output_dir_path)
+analyze_character_dialogues(clean_df)
+draw_entities_season(clean_df, documents_output_dir_path)
