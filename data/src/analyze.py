@@ -335,6 +335,63 @@ def writer_character_correlation(df: pd.DataFrame):
 
     print("Writer-character correlation plot for top 5 characters and writers generated")
 
+def basic_metrics(df : pd.DataFrame):
+    filtered_df = df[df['us_viewers'] > 0]
+    viewers_stats = filtered_df['us_viewers'].agg(['min', 'max', 'mean', 'median', 'std'])
+
+    df['title_length'] = df['title'].str.len()
+    df['synopsis_length'] = df['synopsis'].str.len()
+    title_length_stats = df['title_length'].agg(['min', 'max', 'mean', 'median'])
+    synopsis_length_stats = df['synopsis_length'].agg(['min', 'max', 'mean', 'median'])
+
+    def safe_eval(x):
+        if isinstance(x, list):
+            # Return its length
+            return len(x)
+        elif isinstance(x, str):
+            # If x is a string, strip and evaluate
+            return len(eval(x.strip()))
+        else:
+            print(f"Unexpected data type: {type(x)}")
+            return 0
+
+    df['num_characters'] = df['characters'].apply(safe_eval)
+    df['num_authors'] = df['writers'].apply(safe_eval)
+    character_stats = df['num_characters'].agg(['min', 'max', 'mean'])
+    author_stats = df['num_authors'].agg(['min', 'max', 'mean'])
+    airdate_range = [df['airdate'].min(), df['airdate'].max()]
+
+    summary_dict = {
+        'min': [
+            viewers_stats['min'], title_length_stats['min'], synopsis_length_stats['min'],
+            character_stats['min'], author_stats['min'], airdate_range[0]
+        ],
+        'max': [
+            viewers_stats['max'], title_length_stats['max'], synopsis_length_stats['max'],
+            character_stats['max'], author_stats['max'], airdate_range[1]
+        ],
+        'mean': [
+            round(viewers_stats['mean'], 1), round(title_length_stats['mean'], 1), round(synopsis_length_stats['mean'], 1),
+            round(character_stats['mean'], 1), round(author_stats['mean'], 1), None
+        ],
+        'median': [
+            round(viewers_stats['median'], 1), round(title_length_stats['median'], 1), round(synopsis_length_stats['median'], 1),
+            None, None, None 
+        ],
+        'std': [
+            round(viewers_stats['std'], 1), None, None,
+            None, None, None 
+        ]
+    }
+
+    summary_df = pd.DataFrame(summary_dict, index=[
+        'viewers(millions)', 'title_length', 'synopsis_length', 'character_count', 'author_count', 'airdate_range'
+    ])
+
+    summary_df.to_csv(f'{documents_output_dir_path}/basic_metrics.csv', index=True)
+
+    print("Basic metrics generated")
+
 def animator_character_correlation(df: pd.DataFrame):
     exploded_df = df.explode('characters').explode('animation')
     character_counts = exploded_df['characters'].value_counts()
@@ -385,6 +442,7 @@ clean_df = pd.read_json(f"{clean_dir_path}/output_clean.json")
 
 clean_df['airdate'] = pd.to_datetime(clean_df['airdate'], format="%Y-%m-%d")
 
+basic_metrics(clean_df)
 animator_character_correlation(clean_df)
 writer_character_correlation(clean_df)
 episode_ranking(clean_df, 20) # Change last number to adjust the number of episodes that appear in the plot
