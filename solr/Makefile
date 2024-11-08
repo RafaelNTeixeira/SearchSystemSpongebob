@@ -3,12 +3,13 @@
 
 solr:
 	make up
+	make makeTestData
 	sleep 3
 	make schema
 	sleep 2
 	make populate
-	sleep 2
-	make index
+	# sleep 2
+	# make index
 
 down:
 	docker compose -f docker/docker-compose.yml down --remove-orphans -v
@@ -20,9 +21,13 @@ schema:
 	curl -X POST -H 'Content-type:application/json' \
     --data-binary "@./docker/data/schema.json" \
     http://localhost:8983/solr/episodes/schema
+	curl -X POST -H 'Content-type:application/json' \
+    --data-binary "@./docker/data/schema.json" \
+    http://localhost:8983/solr/test/schema
 
 populate:
 	docker exec -it spongebob_solr bin/post -c episodes /data/spongebob.json
+	docker exec -it spongebob_solr bin/post -c test /data/test.json
 
 index:
 	python indexTranscript.py
@@ -37,3 +42,6 @@ evaluate:
     cat qrels/qrels$(qN).txt | python scripts/qrels2trec.py > evaluation/qrels_trec_q$(qN).txt && \
     trec_eval evaluation/qrels_trec_q$(qN).txt evaluation/results_q$(qN)_trec.txt && \
     cat evaluation/results_q$(qN)_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(qN).txt --output evaluation/prec_rec_q$(qN).png
+
+makeTestData:
+	python makeTestData.py

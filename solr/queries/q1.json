@@ -1,14 +1,17 @@
 {
-    "indent": "true",
-    "fl": "*",
-    "start": "0",
-    "q.op": "AND",
-    "fq": "characters:\"SpongeBob SquarePants\"",
-    "sort": "score desc",
-    "rows": "10",
-    "lowercaseOperators": "false",
-    "q": "drive learn license",
-    "defType": "edismax",
-    "qf": "transcript title^7 synopsis^2",
-    "wt": "json"
+    "fields": "id, score",
+    "params": {
+        "indent": "true",
+        "fl": "*",
+        "start": "0",
+        "q.op": "AND",
+        "fq": "characters:\"SpongeBob SquarePants\"",
+        "sort": "score desc",
+        "rows": "10",
+        "lowercaseOperators": "false",
+        "q": "drive learn license",
+        "defType": "edismax",
+        "qf": "transcript title^7 synopsis^2",
+        "wt": "json"
+    }
 }
