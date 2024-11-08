@@ -12,7 +12,7 @@
         "sort": "score desc",
         "rows": "10",
         "lowercaseOperators": "false",
-        "q": "friendly",
+        "q": "friend~2",
         "defType": "edismax",
         "qf": "transcript title^7 synopsis^2",
         "wt": "json"
