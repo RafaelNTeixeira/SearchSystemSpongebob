@@ -1,7 +1,7 @@
 {
     "add-field-type": [
         {
-            "name": "text_general",
+            "name": "my_text",
             "class": "solr.TextField",
             "indexAnalyzer": {
                 "tokenizer": {
@@ -59,7 +59,7 @@
         },
         {
             "name": "season",
-            "type": "IntPointField",
+            "type": "pint",
             "indexed": true
         },
         {
@@ -84,41 +84,41 @@
         },
         {
             "name": "synopsis",
-            "type": "text_general",
+            "type": "my_text",
             "indexed": true
         },
         {
             "name": "animation",
-            "type": "text_general",
+            "type": "my_text",
             "indexed": false,
             "multiValued": true
         },
         {
             "name": "musics",
-            "type": "text_general",
+            "type": "my_text",
             "indexed": false,
             "multiValued": true
         },
         {
             "name": "writers",
-            "type": "text_general",
+            "type": "my_text",
             "indexed": true,
             "multiValued": true
         },
         {
             "name": "title",
-            "type": "text_general",
+            "type": "my_text",
             "indexed": true
         },
         {
             "name": "characters",
-            "type": "text_general",
+            "type": "my_text",
             "indexed": true,
             "multiValued": true
         },
         {
             "name": "transcript",
-            "type": "text_general",
+            "type": "my_text",
             "indexed": true
         }
     ]

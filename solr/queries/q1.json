@@ -9,9 +9,12 @@
         "sort": "score desc",
         "rows": "10",
         "lowercaseOperators": "false",
-        "q": "drive learn license",
+        "q": "(boat* license^10 driv*) OR (\"Spongebob boat*\"~5)",
         "defType": "edismax",
-        "qf": "transcript title^7 synopsis^2",
-        "wt": "json"
+        "qf": "transcript^7 title^2 synopsis^2",
+        "pf": "transcript^7 title^10 synopsis^2",
+        "ps": "2",
+        "wt": "json",
+        "bf": "recip(ms(NOW,airdate),3.16e-11,1,1)^2"
     }
 }

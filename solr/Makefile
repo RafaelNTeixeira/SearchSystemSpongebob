@@ -3,7 +3,7 @@
 
 solr:
 	make up
-	make makeTestData
+	make testData
 	sleep 3
 	make schema
 	sleep 2
@@ -43,5 +43,5 @@ evaluate:
     trec_eval evaluation/qrels_trec_q$(qN).txt evaluation/results_q$(qN)_trec.txt && \
     cat evaluation/results_q$(qN)_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(qN).txt --output evaluation/prec_rec_q$(qN).png
 
-makeTestData:
+testData:
 	python makeTestData.py
