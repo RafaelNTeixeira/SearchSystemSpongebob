@@ -56,9 +56,7 @@ selected_titles = [
     "SpongeBob's Road to Christmas",
     "Sandy's Country Christmas",
     "The Ho! Ho! Horror!",
-    "Just in Time for Christmas",
-    "Squidina's Holidaze Special"
-
+    "Just in Time for Christmas"
 ]
 
 filtered_episodes = [episode for episode in episodes if episode['title'] in selected_titles]
