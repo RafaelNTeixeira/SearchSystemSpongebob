@@ -38,7 +38,18 @@ selected_titles = [
     "Not Normal", 
     "Boating Buddies", 
     # "Spongebob parents" 
-    # "Christmas specials" 28 "Christmas Who?"
+    "Ma and Pa's Big Hurrah", 
+    "A SquarePants Family Vacation", 
+    "Momageddon", 
+    "Sheldon SquarePants", 
+    "New Digs", 
+    "Culture Shock", 
+    "Truth or Square", 
+    "SpongeBob's Big Birthday Blowout", 
+    "Sing a Song of Patrick", 
+    "No Free Rides", 
+    # "Christmas specials" 
+    "Christmas Who?",
     "It's a SpongeBob Christmas!",
     "Goons on the Moon",
     "Plankton's Old Chum",
