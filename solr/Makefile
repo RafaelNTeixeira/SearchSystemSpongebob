@@ -1,7 +1,8 @@
 # This is simply for easier process execs
-.PHONY: solr down up schema populate index evaluate
+.PHONY: prepare_study_subset solr down up schema populate index evaluate
 
 solr:
+	make prepare_study_subset
 	make up
 	make testData
 	sleep 3
@@ -24,13 +25,21 @@ schema:
 	curl -X POST -H 'Content-type:application/json' \
     --data-binary "@./docker/data/schema.json" \
     http://localhost:8983/solr/test/schema
+	curl -X POST -H 'Content-type:application/json' \
+    --data-binary "@./docker/data/schema.json" \
+    http://localhost:8983/solr/study_subset/schema
 
 populate:
 	docker exec -it spongebob_solr bin/post -c episodes /data/spongebob.json
 	docker exec -it spongebob_solr bin/post -c test /data/test.json
 
+	docker exec -it spongebob_solr bin/post -c study_subset /data/study_subset.json
+
 index:
 	python indexTranscript.py
+
+prepare_study_subset: 
+	python create_study_subset.py
 
 # To run the evaluation, you can use the following command:
 # make evaluate qN=1

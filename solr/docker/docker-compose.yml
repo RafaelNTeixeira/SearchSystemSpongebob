@@ -13,6 +13,7 @@ services:
     command:
       - solr-precreate
       - episodes
+      - study_subset
 
 volumes:
   solr:
