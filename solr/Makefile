@@ -3,9 +3,10 @@
 
 solr:
 	make prepare_study_subset
-	make up
 	make testData
+	make up
 	sleep 3
+	make create_cores
 	make schema
 	sleep 2
 	make populate
@@ -17,6 +18,11 @@ down:
 
 up:
 	docker compose -f docker/docker-compose.yml up -d
+
+create_cores: 
+	docker exec -it spongebob_solr solr create_core -c episodes
+	docker exec -it spongebob_solr solr create_core -c test
+	docker exec -it spongebob_solr solr create_core -c study_subset
 
 schema:
 	curl -X POST -H 'Content-type:application/json' \
