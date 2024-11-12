@@ -3,7 +3,6 @@
 
 solr:
 	make prepare_study_subset
-	make testData
 	make up
 	sleep 3
 	make create_cores
@@ -21,7 +20,6 @@ up:
 
 create_cores: 
 	docker exec -it spongebob_solr solr create_core -c episodes
-	docker exec -it spongebob_solr solr create_core -c test
 	docker exec -it spongebob_solr solr create_core -c study_subset
 
 schema:
@@ -37,8 +35,6 @@ schema:
 
 populate:
 	docker exec -it spongebob_solr bin/post -c episodes /data/spongebob.json
-	docker exec -it spongebob_solr bin/post -c test /data/test.json
-
 	docker exec -it spongebob_solr bin/post -c study_subset /data/study_subset.json
 
 index:
@@ -58,5 +54,3 @@ evaluate:
     trec_eval evaluation/qrels_trec_q$(qN).txt evaluation/results_q$(qN)_trec.txt && \
     cat evaluation/results_q$(qN)_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(qN).txt --output evaluation/prec_rec_q$(qN).png
 
-testData:
-	python makeTestData.py
