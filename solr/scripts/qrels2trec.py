@@ -8,10 +8,10 @@ def qrels_to_trec(qrels: list) -> None:
     Converts qrels (query relevance judgments) to TREC evaluation format.
 
     Arguments:
-    - qrels: A list of qrel lines (document IDs) from standard input.
+    - qrels: A list of qrel lines (document title) from standard input.
     """
     for line in qrels:
-        doc_id = line.strip()
+        doc_id : str = line.strip()
         print(f"0 0 {doc_id} 1")
 
 

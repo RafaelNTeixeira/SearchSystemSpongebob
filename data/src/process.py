@@ -170,6 +170,9 @@ for f in Path(f"{data_dir_path}/raw").iterdir(): # Loops through raw directory
 
     clean_df['airdate'] = clean_df['airdate'].astype(str)
     clean_df = clean_df.sort_values(['season', 'episode'])
+    clean_df = clean_df.reset_index(drop=True)
+    clean_df['id'] = clean_df.index + 1
+    
     if f.suffix[1:] == "json":
         clean_df.to_json(output_clean_data_path, orient='records', force_ascii=False)
     elif f.suffix[1:] == "csv":

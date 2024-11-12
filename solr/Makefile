@@ -45,7 +45,7 @@ prepare_study_subset:
 
 # To run the evaluation, you can use the following command:
 # make evaluate qN=1
-qN=1 # default query number
+qN=3 # default query number
 
 evaluate:
 	python scripts/query_solr.py --query queries/q$(qN).json --uri http://localhost:8983/solr --collection episodes | \
