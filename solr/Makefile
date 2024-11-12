@@ -1,8 +1,9 @@
 # This is simply for easier process execs
-.PHONY: prepare_study_subset solr down up schema populate index evaluate
+.PHONY: prepare_study_subset generate_synonyms solr down up schema populate index evaluate
 
 solr:
 	make prepare_study_subset
+	make generate_synonyms
 	make up
 	sleep 3
 	make create_cores
@@ -34,9 +35,11 @@ populate:
 	docker exec -it spongebob_solr bin/post -c schemaless_subset /data/study_subset.json
 	docker exec -it spongebob_solr bin/post -c study_subset /data/study_subset.json
 
-
 prepare_study_subset: 
 	python create_study_subset.py
+
+generate_synonyms: 
+	python generate_synonyms.py
 
 # To run the evaluation, you can use the following command:
 # make evaluate queries_folder=queries collection=study_subset qN=1,
