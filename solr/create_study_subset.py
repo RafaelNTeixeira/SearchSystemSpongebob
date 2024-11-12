@@ -53,10 +53,7 @@ selected_titles = [
     "It's a SpongeBob Christmas!",
     "Goons on the Moon",
     "Plankton's Old Chum",
-    "SpongeBob's Road to Christmas",
-    "Sandy's Country Christmas",
-    "The Ho! Ho! Horror!",
-    "Just in Time for Christmas"
+    "SpongeBob's Road to Christmas"
 ]
 
 filtered_episodes = [episode for episode in episodes if episode['title'] in selected_titles]
