@@ -1,0 +1,9 @@
+{
+    "fields": "id, score",
+    "params": {
+        "q": "santa christmas",
+        "wt": "json",
+        "rows": "10",
+        "start": "0"
+    }
+}

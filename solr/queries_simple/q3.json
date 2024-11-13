@@ -1,0 +1,10 @@
+{
+    "fields": "id, score",
+    "params": {
+        "q": "margaret Harold",
+        "fq": "characters:\"Harold SquarePants\" OR \"Margaret SquarePants\"",
+        "wt": "json",
+        "rows": "10",
+        "start": "0"
+    }
+}

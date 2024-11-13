@@ -9,9 +9,9 @@
         "sort": "score desc",
         "rows": "10",
         "lowercaseOperators": "false",
-        "q": "*:*",
+        "q": "margaret Harold",
         "defType": "edismax",
-        "qf": "transcript title^7 synopsis^2",
+        "qf": "transcript^7 title synopsis^2",
         "wt": "json"
     }
 }

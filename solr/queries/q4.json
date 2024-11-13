@@ -6,7 +6,7 @@
         "start": "0",
         "q.op": "OR",
         "sort": "score desc",
-        "rows": "10",
+        "rows": "20",
         "lowercaseOperators": "false",
         "q": "santa christmas",
         "defType": "edismax",

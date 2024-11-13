@@ -1,0 +1,13 @@
+{
+    "fields": "id, score",
+    "params": {
+        "q": "friend",
+        "fq": [
+            "characters:\"SpongeBob SquarePants\"",
+            "characters:\"Squidward Tentacles\""
+        ],
+        "wt": "json",
+        "rows": "10",
+        "start": "0"
+    }
+}

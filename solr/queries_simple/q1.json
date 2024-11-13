@@ -1,0 +1,10 @@
+{
+    "fields": "id, score",
+    "params": {
+        "q": "characters:\"SpongeBob SquarePants\" AND (boat* license driv*) OR (\"Spongebob boat*\")",
+        "wt": "json",
+        "rows": "20",
+        "fq": "characters:\"SpongeBob SquarePants\"",
+        "start": "0"
+    }
+}
