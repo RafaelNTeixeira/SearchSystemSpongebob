@@ -17,32 +17,24 @@ In order to run this project, you need to have the following technologies instal
 
 ## How to run
 
+Before running the project please install the contents of the "requirments.txt" file. You can do so by running: 
+
+```make requirements```
+
 The crawler for the project can be run by executing the following commands:
 
-```cd spongebobCrawler/```
-```scrapy crawl season_spider -a enable_print=True```
-
-Or simply: 
-
 ```make crawl```
-```make crawl-print```
 
 To run the project's analysis run the following command:
 
-```python data/src/analyze.py```
-
-Or simply: 
-
+```make process```
 ```make analyze```
 
-To run the complete project run the following command: 
-
-```make all```
-
-To run the solr run the following command: 
+To access the Apache Solr's dash board run the following command: 
 
 ```make solr```
 
-You can access the solr dash board on: 
+You can access the dash board on: 
 
 ```http://localhost:8983/solr/#```
+
