@@ -8,9 +8,13 @@
         "sort": "score desc",
         "rows": "20",
         "lowercaseOperators": "false",
-        "q": "santa christmas",
+        "q": "christmas",
         "defType": "edismax",
-        "qf": "transcript title^7 synopsis^2",
+        "qf": "transcript^5 title^10 synopsis^4",
+        "pf": "transcript^6 title^12 synopsis^5",
+        "ps": "2",
+        "bf": "recip(ms(NOW,airdate),3.16e-11,1,1)^3",
+        "fq": "{!edismax qf='transcript^5 title^8 synopsis^4'}christmas~4 christmas*",
         "wt": "json"
     }
 }

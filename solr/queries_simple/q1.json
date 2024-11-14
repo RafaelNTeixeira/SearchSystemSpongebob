@@ -1,10 +1,13 @@
 {
     "fields": "id, score",
     "params": {
-        "q": "characters:\"SpongeBob SquarePants\" AND (boat* license driv*) OR (\"Spongebob boat*\")",
+        "q": "spongebob learn to drive",
+        "q.op": "AND",
         "wt": "json",
         "rows": "20",
-        "fq": "characters:\"SpongeBob SquarePants\"",
-        "start": "0"
+        "sort": "score desc",
+        "start": "0",
+        "indent": "true",
+        "df": "transcript"
     }
 }

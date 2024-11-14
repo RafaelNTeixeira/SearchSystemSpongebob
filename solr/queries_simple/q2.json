@@ -1,13 +1,13 @@
 {
     "fields": "id, score",
     "params": {
-        "q": "friend",
-        "fq": [
-            "characters:\"SpongeBob SquarePants\"",
-            "characters:\"Squidward Tentacles\""
-        ],
+        "q": "spongebob and squidward friends",
+        "q.op": "OR",
         "wt": "json",
-        "rows": "10",
-        "start": "0"
+        "rows": "20",
+        "sort": "score desc",
+        "start": "0",
+        "indent": "true",
+        "df": "transcript"
     }
 }

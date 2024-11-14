@@ -1,6 +1,7 @@
 import json
 from nltk.corpus import wordnet as wn
 import nltk
+from pathlib import Path
 
 # This custom dictionary revels itself as necessary because of the unique synonyms needed in the Spongebob Squartpants universe, where people drive boats instead of cars
 def load_custom_dictionary(filename="custom_dictionary.json"):
@@ -37,7 +38,11 @@ def generate_synonyms(terms, custom_dict):
     return synonyms
 
 def save_synonyms_to_file(synonyms, filename="synonyms.txt"):
-    with open(filename, "w") as file:
+    path = Path(__file__).parent
+    path = Path(f"{path}/docker/data")
+    path.mkdir(parents=True, exist_ok=True)
+    path = Path(f"{path}/{filename}")
+    with open(path, "w") as file:
         for word, syns in synonyms.items():
             file.write(f"{word}: {', '.join(syns)}\n")
 

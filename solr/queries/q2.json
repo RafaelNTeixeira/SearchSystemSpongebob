@@ -4,17 +4,17 @@
         "indent": "true",
         "fl": "*",
         "start": "0",
-        "q.op": "AND",
-        "fq": [
-            "characters:\"SpongeBob SquarePants\"",
-            "characters:\"Squidward Tentacles\""
-        ],
+        "q.op": "OR",
         "sort": "score desc",
-        "rows": "10",
+        "rows": "20",
         "lowercaseOperators": "false",
-        "q": "friend~2",
+        "q": "spongebob and squidward friends",
         "defType": "edismax",
-        "qf": "transcript title^7 synopsis^2",
+        "qf": "transcript^5 title^10 synopsis^3",
+        "pf": "transcript^7 title^12 synopsis^4",
+        "ps": "10",
+        "bq": "spongebob^3 squidward^3 friendly^2",
+        "bf": "recip(ms(NOW,airdate),3.16e-11,1,1)^2",
         "wt": "json"
     }
 }

@@ -5,13 +5,17 @@
         "fl": "*",
         "start": "0",
         "q.op": "OR",
-        "fq": "characters:\"Harold SquarePants\"OR\"Margaret SquarePants\"",
         "sort": "score desc",
-        "rows": "10",
+        "rows": "20",
         "lowercaseOperators": "false",
-        "q": "margaret Harold",
+        "q": "spongebob's parents",
         "defType": "edismax",
-        "qf": "transcript^7 title synopsis^2",
+        "qf": "transcript^5 title^10 synopsis^4",
+        "pf": "transcript^6 title^12 synopsis^5",
+        "ps": "2",
+        "bq": "margaret^3 Harold^3",
+        "bf": "recip(ms(NOW,airdate),3.16e-11,1,1)^3",
+        "fq": "{!edismax qf='transcript^5 title^8 synopsis^4'}margaret~1 Harold~1 margaret* Harold*",
         "wt": "json"
     }
 }

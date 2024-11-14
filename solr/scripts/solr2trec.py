@@ -50,6 +50,5 @@ if __name__ == "__main__":
 
     # Load Solr response from STDIN
     solr_response = json.load(sys.stdin)
-
     # Convert Solr results to TREC format and write to STDOUT
     solr_to_trec(solr_response, args.run_id)
