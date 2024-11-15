@@ -1,8 +1,8 @@
 {
     "fields": "id, score",
     "params": {
-        "q": "spongebob learn to drive",
-        "q.op": "AND",
+        "q": "spongebob learns to drive",
+        "q.op": "OR",
         "wt": "json",
         "rows": "20",
         "sort": "score desc",
