@@ -14,6 +14,7 @@
         "pf": "transcript^3 title^5 synopsis",
         "ps": "10",
         "bf": "recip(ms(NOW,airdate),3.16e-11,1,1)^2",
-        "wt": "json"
+        "wt": "json",
+        "df": "transcript"
     }
 }
