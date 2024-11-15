@@ -14,8 +14,6 @@
         "pf": "transcript^7 title^10 synopsis^2",
         "ps": "2",
         "wt": "json",
-        "bf": "recip(ms(NOW,airdate),3.16e-11,1,1)^2",
-        "bq": "spongebob learn^2 drive^3",
-        "fq": "{!edismax qf='transcript^7 title^2 synopsis^2'}spongebob~1 learn* drive~3"
+        "bf": "recip(ms(NOW,airdate),3.16e-11,1,1)^2"
     }
 }

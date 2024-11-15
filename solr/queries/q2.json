@@ -13,7 +13,6 @@
         "qf": "transcript^5 title^10 synopsis^3",
         "pf": "transcript^7 title^12 synopsis^4",
         "ps": "10",
-        "bq": "spongebob^3 squidward^3 friendly^2",
         "bf": "recip(ms(NOW,airdate),3.16e-11,1,1)^2",
         "wt": "json"
     }
