@@ -10,8 +10,8 @@
         "lowercaseOperators": "false",
         "q": "spongebob and squidward friends",
         "defType": "edismax",
-        "qf": "transcript^5 title^10 synopsis^3",
-        "pf": "transcript^7 title^12 synopsis^4",
+        "qf": "transcript^3 title^5 synopsis",
+        "pf": "transcript^3 title^5 synopsis",
         "ps": "10",
         "bf": "recip(ms(NOW,airdate),3.16e-11,1,1)^2",
         "wt": "json"

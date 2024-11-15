@@ -10,8 +10,8 @@
         "lowercaseOperators": "false",
         "q": "spongebob learns to drive",
         "defType": "edismax",
-        "qf": "transcript^7 title^2 synopsis^2",
-        "pf": "transcript^7 title^10 synopsis^2",
+        "qf": "transcript^3 title^5 synopsis",
+        "pf": "transcript^3 title^5 synopsis",
         "ps": "2",
         "wt": "json",
         "bf": "recip(ms(NOW,airdate),3.16e-11,1,1)^2"
