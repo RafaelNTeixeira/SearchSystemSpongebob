@@ -8,6 +8,7 @@
         "sort": "score desc",
         "start": "0",
         "indent": "true",
+        "defType": "edismax",
         "df": "transcript"
     }
 }
