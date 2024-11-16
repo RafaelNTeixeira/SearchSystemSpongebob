@@ -74,11 +74,15 @@ def main(qrels_file: str, output_file: str):
     )
 
     # Customize plot appearance
-    plt.xlabel("Recall", fontsize=18)
-    plt.ylabel("Precision", fontsize=18)
+    plt.xlabel("Recall", fontsize=20)
+    plt.xticks(fontsize= 18)
+    plt.ylabel("Precision", fontsize=20)
+    plt.yticks(fontsize= 18)
     plt.xlim(0, 1)
     plt.ylim(0, 1)
     plt.legend(loc="lower left", prop={"size": 18})
+
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
 
     # Keep the title as "Precision-Recall Curve"
     plt.title("Precision-Recall Curve", fontsize=18)
