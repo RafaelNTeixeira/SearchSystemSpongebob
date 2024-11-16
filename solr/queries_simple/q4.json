@@ -1,0 +1,14 @@
+{
+    "fields": "id, score",
+    "params": {
+        "q": "christmas",
+        "q.op": "AND",
+        "wt": "json",
+        "rows": "20",
+        "sort": "score desc",
+        "start": "0",
+        "defType": "edismax",
+        "indent": "true",
+        "df": "transcript"
+    }
+}

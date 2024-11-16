@@ -1,0 +1,14 @@
+{
+    "fields": "id, score",
+    "params": {
+        "q": "spongebob learns to drive",
+        "q.op": "OR",
+        "wt": "json",
+        "rows": "20",
+        "sort": "score desc",
+        "start": "0",
+        "indent": "true",
+        "defType": "edismax",
+        "df": "transcript"
+    }
+}
