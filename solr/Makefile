@@ -1,5 +1,5 @@
 # This is simply for easier process execs
-.PHONY: prepare_study_subset generate_synonyms solr down up schema populate index evaluate
+.PHONY: prepare_study_subset generate_synonyms solr down up schema populate index evaluate semantic_search
 
 solr:
 	make prepare_study_subset
