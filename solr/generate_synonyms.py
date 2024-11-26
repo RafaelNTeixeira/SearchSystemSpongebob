@@ -57,3 +57,14 @@ terms = extract_terms(episodes, fields_to_extract)
 synonyms = generate_synonyms(terms, custom_dictionary)
 
 save_synonyms_to_file(synonyms)
+
+
+# generate stopwords
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+
+stop_words = set(stopwords.words('english'))
+
+with open("docker/data/stopwords.txt", "w") as file:
+    for word in stop_words:
+        file.write(f"{word}\n")

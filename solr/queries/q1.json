@@ -1,20 +1,19 @@
 {
-    "fields": "id, score",
+    "fields": "episode, score",
     "params": {
         "indent": "true",
         "fl": "*",
         "start": "0",
-        "q.op": "OR",
+        "q.op": "AND",
         "sort": "score desc",
-        "rows": "20",
+        "rows": "30",
         "lowercaseOperators": "false",
-        "q": "spongebob learns to drive",
+        "q": "spongebob learn drive",
         "defType": "edismax",
         "qf": "transcript^3 title^5 synopsis",
         "pf": "transcript^3 title^5 synopsis",
         "ps": "2",
         "wt": "json",
-        "bf": "recip(ms(NOW,airdate),3.16e-11,1,1)^2",
         "df": "transcript"
     }
 }

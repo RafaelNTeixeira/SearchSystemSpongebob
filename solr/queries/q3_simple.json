@@ -1,10 +1,10 @@
 {
-    "fields": "id, score",
+    "fields": "episode, score",
     "params": {
-        "q": "christmas",
+        "q": "spongebob's parents",
         "q.op": "AND",
         "wt": "json",
-        "rows": "20",
+        "rows": "30",
         "sort": "score desc",
         "start": "0",
         "defType": "edismax",

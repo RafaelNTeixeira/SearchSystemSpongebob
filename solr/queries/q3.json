@@ -1,12 +1,12 @@
 {
-    "fields": "id, score",
+    "fields": "episode, score",
     "params": {
         "indent": "true",
         "fl": "*",
         "start": "0",
         "q.op": "OR",
         "sort": "score desc",
-        "rows": "20",
+        "rows": "30",
         "lowercaseOperators": "false",
         "q": "spongebob's parents",
         "defType": "edismax",

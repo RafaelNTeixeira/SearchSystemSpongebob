@@ -1,14 +1,14 @@
 {
-    "fields": "id, score",
+    "fields": "episode, score",
     "params": {
-        "q": "spongebob and squidward friends",
-        "q.op": "OR",
+        "q": "spongebob learn drive",
+        "q.op": "AND",
         "wt": "json",
-        "rows": "20",
+        "rows": "30",
         "sort": "score desc",
         "start": "0",
-        "defType": "edismax",
         "indent": "true",
+        "defType": "edismax",
         "df": "transcript"
     }
 }

@@ -1,14 +1,14 @@
 {
-    "fields": "id, score",
+    "fields": "episode, score",
     "params": {
         "indent": "true",
         "fl": "*",
         "start": "0",
-        "q.op": "OR",
+        "q.op": "AND",
         "sort": "score desc",
-        "rows": "20",
+        "rows": "30",
         "lowercaseOperators": "false",
-        "q": "spongebob and squidward friends",
+        "q": "spongebob squidward friends",
         "defType": "edismax",
         "qf": "transcript^3 title^5 synopsis",
         "pf": "transcript^3 title^5 synopsis",

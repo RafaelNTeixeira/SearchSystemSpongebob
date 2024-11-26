@@ -16,13 +16,21 @@
                         "class": "solr.LowerCaseFilterFactory"
                     },
                     {
-                        "class": "solr.EnglishMinimalStemFilterFactory"
-                    },
-                    {
-                        "class": "solr.SynonymFilterFactory",
+                        "class": "solr.SynonymGraphFilterFactory",
                         "synonyms": "synonyms.txt",
                         "ignoreCase": "true",
                         "expand": "false"
+                    },
+                    {
+                        "class": "solr.FlattenGraphFilterFactory"
+                    },
+                    {
+                        "class": "solr.PorterStemFilterFactory"
+                    },
+                    {
+                        "class": "solr.StopFilterFactory",
+                        "words": "stopwords.txt",
+                        "ignoreCase": "true"
                     }
                 ]
             },
@@ -39,13 +47,21 @@
                         "class": "solr.LowerCaseFilterFactory"
                     },
                     {
-                        "class": "solr.EnglishMinimalStemFilterFactory"
-                    },
-                    {
-                        "class": "solr.SynonymFilterFactory",
+                        "class": "solr.SynonymGraphFilterFactory",
                         "synonyms": "synonyms.txt",
                         "ignoreCase": "true",
                         "expand": "false"
+                    },
+                    {
+                        "class": "solr.FlattenGraphFilterFactory"
+                    },
+                    {
+                        "class": "solr.PorterStemFilterFactory"
+                    },
+                    {
+                        "class": "solr.StopFilterFactory",
+                        "words": "stopwords.txt",
+                        "ignoreCase": "true"
                     }
                 ]
             }
