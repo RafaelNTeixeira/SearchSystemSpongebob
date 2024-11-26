@@ -68,7 +68,7 @@
             "vectorDimension": 384,
             "similarityFunction": "cosine",
             "knnAlgorithm": "hnsw"
-        },
+        }
     ],
     "add-field": [
         {
