@@ -10,6 +10,8 @@ solr:
 	make schema
 	sleep 2
 	make populate
+	sleep 2
+	make semantic_search
 
 down:
 	docker compose -f docker/docker-compose.yml down --remove-orphans -v
@@ -34,6 +36,9 @@ populate:
 	docker exec -it spongebob_solr bin/post -c episodes /data/spongebob.json
 	docker exec -it spongebob_solr bin/post -c schemaless_subset /data/study_subset.json
 	docker exec -it spongebob_solr bin/post -c study_subset /data/study_subset.json
+
+semantic_search:
+	python semantic_search/get_embeddings.py
 
 prepare_study_subset: 
 	python create_study_subset.py

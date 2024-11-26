@@ -61,7 +61,14 @@
             "class": "solr.TrieFloatField",
             "precisionStep": 0,
             "positionIncrementGap": 0
-        }
+        },
+        {
+            "name": "courseVector",
+            "class": "solr.DenseVectorField",
+            "vectorDimension": 384,
+            "similarityFunction": "cosine",
+            "knnAlgorithm": "hnsw"
+        },
     ],
     "add-field": [
         {
@@ -132,6 +139,13 @@
             "name": "transcript",
             "type": "my_text",
             "indexed": true
+        },
+        {
+            "name": "vector",
+            "type": "courseVector",
+            "indexed": true,
+            "stored": true
         }
+
     ]
 }
