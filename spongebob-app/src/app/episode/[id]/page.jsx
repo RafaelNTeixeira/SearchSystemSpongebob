@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { episodes } from "@/app/data/episodes"
+import { mockEpisodes } from "@/app/data/episodes"
 import Link from 'next/link'
 
 export default function EpisodePage({ params }) {
-  const episode = episodes.find(ep => ep.id === parseInt(params.id))
+  const episode = mockEpisodes.find(ep => ep.id === parseInt(params.id))
 
   if (!episode) {
     return <div>Episode not found</div>
