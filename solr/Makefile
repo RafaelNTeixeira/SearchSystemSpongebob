@@ -1,5 +1,5 @@
 # This is simply for easier process execs
-.PHONY: prepare_study_subset generate_synonyms solr down up schema populate index evaluate
+.PHONY: prepare_study_subset generate_synonyms solr down up schema populate index evaluate semantic_search
 
 solr:
 	make prepare_study_subset
@@ -10,6 +10,8 @@ solr:
 	make schema
 	sleep 2
 	make populate
+	sleep 2
+	make semantic_search
 
 down:
 	docker compose -f docker/docker-compose.yml down --remove-orphans -v
@@ -32,6 +34,9 @@ schema:
 populate:
 	docker exec -it spongebob_solr bin/post -c episodes /data/spongebob.json
 	docker exec -it spongebob_solr bin/post -c schemaless_subset /data/spongebob.json
+
+semantic_search:
+	python semantic_search/get_embeddings.py
 
 prepare_study_subset: 
 	python create_study_subset.py
