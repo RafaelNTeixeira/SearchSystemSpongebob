@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def main(qrels_file: str, output_file: str):
+def main(qrels_file: str, output_file: str, output_avp_file: str):
     """
     Read predicted document IDs from stdin in TREC format and qrels (ground truth IDs) from a file,
     Plot precision-recall curve and save it to a .PNG file.
@@ -33,7 +33,7 @@ def main(qrels_file: str, output_file: str):
         print("Error: No predictions or qrels found. Please provide valid input.")
         sys.exit(1)
 
-    # Calculate precision, recall, and keep track of relevant ranks for MAP calculation
+    # Calculate precision, recall, and keep track of relevant ranks for AVP calculation
     precision = []
     recall = []
     relevant_ranks = []  # To hold precision values at ranks where relevant documents are retrieved
@@ -51,8 +51,8 @@ def main(qrels_file: str, output_file: str):
         # Recall: relevant docs so far / total relevant docs in qrels
         recall.append(relevant_count / len(y_true))
 
-    # Compute Mean Average Precision (MAP) as the mean of precision values for relevant documents
-    map_score = np.sum(relevant_ranks) / len(y_true) if relevant_ranks else 0
+    # Compute Average Precision (AvP) as the mean of precision values for relevant documents
+    avp_score = np.sum(relevant_ranks) / len(y_true) if relevant_ranks else 0
 
     # Compute the 11-point interpolated precision-recall curve
     recall_levels = np.linspace(0.0, 1.0, 11)
@@ -69,7 +69,7 @@ def main(qrels_file: str, output_file: str):
         recall_levels,
         interpolated_precision,
         drawstyle="steps-post",
-        label=f"MAP: {map_score:.4f}, AUC: {auc_score:.4f}",
+        label=f"AvP: {avp_score:.4f}, AUC: {auc_score:.4f}",
         linewidth=1,
     )
 
@@ -91,20 +91,19 @@ def main(qrels_file: str, output_file: str):
     plt.savefig(output_file, format="png", dpi=300)
     print(f"Precision-Recall plot saved to {output_file}")
 
+    with open(output_avp_file, "w") as file:
+        file.write(str(avp_score))
+
 
 if __name__ == "__main__":
     # Argument parser to handle the qrels file and output file as command-line arguments
     parser = argparse.ArgumentParser(
         description="Generate a Precision-Recall curve from Solr results (in TREC format) and qrels."
     )
-    parser.add_argument(
-        "--qrels",
-        type=str,
-        required=True,
-        help="Path to the qrels file (ground truth document IDs in TREC format)",
-    )
-    parser.add_argument("--output", type=str, required=True, help="Path to the output PNG file")
+    parser.add_argument("--qrels", type=str, required=True, help="Path to the qrels file (ground truth document IDs in TREC format)",)
+    parser.add_argument("--output", type=str, required=True, help="Path to the output PNG file",)
+    parser.add_argument("--output_avp", type=str, required=True, help="Path to the output AvP TXT file")
     args = parser.parse_args()
 
     # Run the main function with the provided qrels file and output file
-    main(args.qrels, args.output)
+    main(args.qrels, args.output, args.output_avp)

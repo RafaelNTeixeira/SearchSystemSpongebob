@@ -1,5 +1,5 @@
 # This is simply for easier process execs
-.PHONY: prepare_study_subset generate_synonyms solr down up schema populate index evaluate semantic_search
+.PHONY: prepare_study_subset generate_synonyms solr down up schema populate index evaluate semantic_search 
 
 solr:
 	make prepare_study_subset
@@ -71,7 +71,19 @@ qN=1
 
 QUERIES := 1 2 3 4
 
-evaluate_all: $(foreach qN,$(QUERIES),evaluate_$(qN) evaluate_simple_$(qN))
+evaluate_all: 
+	make evaluate_queries
+	rm -f evaluation/map.txt
+	make calculate_map_boosted
+	make calculate_map_simple
+
+evaluate_queries: $(foreach qN,$(QUERIES),evaluate_$(qN) evaluate_simple_$(qN))
+
+calculate_map_simple: 
+	python scripts/systems_map.py --avp_folder evaluation/avp_simple
+
+calculate_map_boosted: 
+	python scripts/systems_map.py --avp_folder evaluation/avp_boosted
 
 define EVALUATE_RULE
 evaluate_$(1):
@@ -79,7 +91,7 @@ evaluate_$(1):
 	python scripts/solr2trec.py > evaluation/results_q$(1)_trec.txt && \
 	cat qrels/qrels$(1).txt | python scripts/qrels2trec.py > evaluation/qrels_trec_q$(1).txt && \
 	trec_eval evaluation/qrels_trec_q$(1).txt evaluation/results_q$(1)_trec.txt && \
-	cat evaluation/results_q$(1)_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(1).txt --output evaluation/prec_rec_q$(1).png
+	cat evaluation/results_q$(1)_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(1).txt --output evaluation/prec_rec_q$(1).png  --output_avp evaluation/avp_boosted/q$(1).txt
 endef
 $(foreach qN,$(QUERIES),$(eval $(call EVALUATE_RULE,$(qN))))
 
@@ -89,6 +101,6 @@ evaluate_simple_$(1):
 	python scripts/solr2trec.py > evaluation/results_q$(1)_simple_trec.txt && \
 	cat qrels/qrels$(1).txt | python scripts/qrels2trec.py > evaluation/qrels_trec_q$(1)_simple.txt && \
 	trec_eval evaluation/qrels_trec_q$(1)_simple.txt evaluation/results_q$(1)_simple_trec.txt && \
-	cat evaluation/results_q$(1)_simple_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(1)_simple.txt --output evaluation/prec_rec_q$(1)_simple.png
+	cat evaluation/results_q$(1)_simple_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(1)_simple.txt --output evaluation/prec_rec_q$(1)_simple.png --output_avp evaluation/avp_simple/q$(1).txt
 endef
 $(foreach qN,$(QUERIES),$(eval $(call EVALUATE_SIMPLE_RULE,$(qN))))
