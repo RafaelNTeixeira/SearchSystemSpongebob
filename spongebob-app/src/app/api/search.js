@@ -1,23 +1,35 @@
-import { mockEpisodes } from "@/app/data/episodes"
+import axios from 'axios'
 
-const axios = require('axios');
+const SEARCH_URL = 'http://localhost:8000/search';
+const GET_EPISODE_URL = 'http://localhost:8000/episode';
 
-const SOLR_URL = 'http://localhost:8983/solr/episodes/select';
+export async function getPaginatedEpisodes(page, pageSize, query = '') {
+    const response = await searchSolr(query);
+    const filteredEpisodes = response.response.docs;
+  
+    const startIndex = (page - 1) * pageSize
+    const endIndex = startIndex + pageSize
+  
+    return {
+      episodes: filteredEpisodes.slice(startIndex, endIndex),
+      totalPages: Math.ceil(filteredEpisodes.length / pageSize),
+      currentPage: page
+    }
+  }
 
-export function mockSearchSolr(query) {
-    return mockEpisodes.filter(episode => episode.title.toLowerCase().includes(query.toLowerCase()));
-}
-
-
-// TODO: Implement searchSolr function to query Solr
 export async function searchSolr(query) {
     try {
-        const response = await axios.get(SOLR_URL, {
-            params: {
-                q: query,
-                wt: 'json'
-            }
-        });
+        const response = await axios.post(SEARCH_URL, { query: query });
+        return response.data;
+    } catch (error) {
+        console.error('Error querying Solr:', error);
+        throw error;
+    }
+}
+
+export async function getEpisode(id) {
+    try {
+        const response = await axios.get(`${GET_EPISODE_URL}/${id}`);
         return response.data;
     } catch (error) {
         console.error('Error querying Solr:', error);

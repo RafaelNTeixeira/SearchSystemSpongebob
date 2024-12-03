@@ -1,13 +1,23 @@
+'use client'
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { mockEpisodes } from "@/app/data/episodes"
 import Link from 'next/link'
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation"
+import { getEpisode } from '@/app/api/search'
 
-export default function EpisodePage({ params }) {
-  const episode = mockEpisodes.find(ep => ep.id === parseInt(params.id))
 
-  if (!episode) {
-    return <div>Episode not found</div>
-  }
+export default function EpisodePage() {
+  const { id } = useParams();
+  const [episode, setEpisode] = useState({});
+
+  useEffect(() => {
+    console.log('Episode ID:', id);
+    getEpisode(id).then((data) => {
+      console.log('Episode data:', data);
+      setEpisode(data);
+    });
+  }, [id]); 
 
   return (
     <div className="container mx-auto p-4">
