@@ -29,7 +29,7 @@ export async function searchSolr(query) {
 
 export async function getEpisode(id) {
     try {
-        const response = await axios.get(GET_EPISODE_URL, { id: id });
+        const response = await axios.get(`${GET_EPISODE_URL}/${id}`);
         return response.data;
     } catch (error) {
         console.error('Error querying Solr:', error);
