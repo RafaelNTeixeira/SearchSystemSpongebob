@@ -3,6 +3,11 @@
 
 all: clean requirements process analyze
 
+app:
+	cd spongebob-app/; \
+	npm install; \
+	npm run dev
+
 requirements:
 	pip install -r requirements.txt
 	python -m spacy download en_core_web_sm

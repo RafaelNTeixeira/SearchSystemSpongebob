@@ -1,5 +1,5 @@
 # This is simply for easier process execs
-.PHONY: prepare_study_subset generate_synonyms solr down up schema populate index evaluate semantic_search
+.PHONY: prepare_study_subset generate_synonyms solr down up schema populate index evaluate api semantic_search
 
 solr:
 	make prepare_study_subset
@@ -11,6 +11,7 @@ solr:
 	sleep 2
 	make populate
 	sleep 2
+	make api
 	make semantic_search
 
 down:
@@ -34,6 +35,9 @@ schema:
 populate:
 	docker exec -it spongebob_solr bin/post -c episodes /data/spongebob.json
 	docker exec -it spongebob_solr bin/post -c schemaless_subset /data/spongebob.json
+
+api:
+	uvicorn api:app --host 0.0.0.0 --port 8000 --reload
 
 semantic_search:
 	python semantic_search/get_embeddings.py
