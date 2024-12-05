@@ -1,7 +1,9 @@
 # This is simply for easier process execs
-.PHONY: prepare_study_subset generate_synonyms solr down up schema populate index evaluate semantic_search
+.PHONY: prepare_study_subset generate_synonyms solr down up schema populate index evaluate api semantic_search
 
 solr:
+	make down
+	make processTranscript
 	make prepare_study_subset
 	make generate_synonyms
 	make up
@@ -11,6 +13,7 @@ solr:
 	sleep 2
 	make populate
 	sleep 2
+	make api
 	make semantic_search
 
 down:
@@ -19,9 +22,13 @@ down:
 up:
 	docker compose -f docker/docker-compose.yml up -d
 
+processTranscript:
+	python processTranscript.py
+
 create_cores: 
 	docker exec -it spongebob_solr solr create_core -c episodes
 	docker exec -it spongebob_solr solr create_core -c schemaless_subset
+	docker exec -it spongebob_solr solr create_core -c transcript_processed
 
 schema:
 	curl -X POST -H 'Content-type:application/json' \
@@ -30,10 +37,17 @@ schema:
 	curl -X POST -H 'Content-type:application/json' \
 	--data-binary "@./docker/data/simple_schema.json" \
 	http://localhost:8983/solr/schemaless_subset/schema
+	curl -X POST -H 'Content-type:application/json' \
+	--data-binary "@./docker/data/processedTranscript_schema.json" \
+	http://localhost:8983/solr/transcript_processed/schema
 
 populate:
 	docker exec -it spongebob_solr bin/post -c episodes /data/spongebob.json
 	docker exec -it spongebob_solr bin/post -c schemaless_subset /data/spongebob.json
+	docker exec -it spongebob_solr bin/post -c transcript_processed /data/processedTranscript.json
+
+api:
+	uvicorn api:app --host 0.0.0.0 --port 8000 --reload
 
 semantic_search:
 	python semantic_search/get_embeddings.py

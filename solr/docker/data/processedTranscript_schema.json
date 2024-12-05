@@ -1,0 +1,116 @@
+{
+    "add-field-type": [
+        {
+            "name": "my_text",
+            "class": "solr.TextField",
+            "indexAnalyzer": {
+                "tokenizer": {
+                    "class": "solr.StandardTokenizerFactory"
+                },
+                "filters": [
+                    {
+                        "class": "solr.ASCIIFoldingFilterFactory",
+                        "preserveOriginal": true
+                    },
+                    {
+                        "class": "solr.LowerCaseFilterFactory"
+                    },
+                    {
+                        "class": "solr.SynonymGraphFilterFactory",
+                        "synonyms": "synonyms.txt",
+                        "ignoreCase": "true",
+                        "expand": "false"
+                    },
+                    {
+                        "class": "solr.FlattenGraphFilterFactory"
+                    },
+                    {
+                        "class": "solr.PorterStemFilterFactory"
+                    },
+                    {
+                        "class": "solr.StopFilterFactory",
+                        "words": "stopwords.txt",
+                        "ignoreCase": "true"
+                    }
+                ]
+            },
+            "queryAnalyzer": {
+                "tokenizer": {
+                    "class": "solr.StandardTokenizerFactory"
+                },
+                "filters": [
+                    {
+                        "class": "solr.ASCIIFoldingFilterFactory",
+                        "preserveOriginal": true
+                    },
+                    {
+                        "class": "solr.LowerCaseFilterFactory"
+                    },
+                    {
+                        "class": "solr.SynonymGraphFilterFactory",
+                        "synonyms": "synonyms.txt",
+                        "ignoreCase": "true",
+                        "expand": "false"
+                    },
+                    {
+                        "class": "solr.FlattenGraphFilterFactory"
+                    },
+                    {
+                        "class": "solr.PorterStemFilterFactory"
+                    },
+                    {
+                        "class": "solr.StopFilterFactory",
+                        "words": "stopwords.txt",
+                        "ignoreCase": "true"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "courseVector",
+            "class": "solr.DenseVectorField",
+            "vectorDimension": 384,
+            "similarityFunction": "cosine",
+            "knnAlgorithm": "hnsw"
+        }
+    ],
+    "add-field": [
+        {
+            "name": "episode",
+            "type": "string",
+            "indexed": false
+        },
+        {
+            "name": "setting",
+            "type": "my_text",
+            "indexed": false
+        },
+        {
+            "name": "speaker",
+            "type": "string",
+            "indexed": false
+        },
+        {
+            "name": "dialogue",
+            "type": "my_text",
+            "indexed": false
+        },
+        {
+            "name": "actions",
+            "type": "my_text",
+            "indexed": false
+        },
+        {
+            "name": "vector",
+            "type": "courseVector",
+            "indexed": true,
+            "stored": true
+        },
+        {
+            "name": "vector",
+            "type": "courseVector",
+            "indexed": true,
+            "stored": true
+        }
+    ]
+}

@@ -19,8 +19,6 @@ ENTITIES_OUTPUT_PATH = f"{data_dir_path}/entities.json"
 def parse_transcript(transcript, episode_id):
     scene_pattern = r"\[(.*?)\]"
     dialogue_pattern = r"(\w+): (.*?)(?=\w+:|$)"
-
-
     
     scenes = re.findall(scene_pattern, transcript)
     dialogues = re.findall(dialogue_pattern, transcript)
