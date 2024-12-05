@@ -31,9 +31,9 @@ def parse_transcript(transcript, episode_id):
             {
                 'episode' : episode_id,
                 'setting' : first_scene,
-                'dialogues' : [],
-                'actions' : [],
-                'speaker' : []
+                'dialogues' : "",
+                'actions' : "",
+                'speaker' : ""
             })
         
         
@@ -56,6 +56,8 @@ def extract_dialogue_and_actions(dialogue):
     cleaned_dialogue = cleaned_dialogue.strip()
     cleaned_dialogue = cleaned_dialogue.replace("//", "")
     actions = [action.replace("//", "") for action in actions]
+    # actions to string
+    actions = " ".join(actions)
 
     return cleaned_dialogue, actions
 

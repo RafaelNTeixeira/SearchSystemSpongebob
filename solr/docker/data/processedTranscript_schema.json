@@ -78,33 +78,27 @@
         {
             "name": "episode",
             "type": "string",
-            "indexed": false
+            "indexed": true
         },
         {
             "name": "setting",
             "type": "my_text",
-            "indexed": false
+            "indexed": true
         },
         {
             "name": "speaker",
             "type": "string",
-            "indexed": false
+            "indexed": true
         },
         {
             "name": "dialogue",
             "type": "my_text",
-            "indexed": false
+            "indexed": true
         },
         {
             "name": "actions",
             "type": "my_text",
-            "indexed": false
-        },
-        {
-            "name": "vector",
-            "type": "courseVector",
-            "indexed": true,
-            "stored": true
+            "indexed": true
         },
         {
             "name": "vector",
