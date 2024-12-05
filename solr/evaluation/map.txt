@@ -1,0 +1,2 @@
+The system evaluation/avp_boosted has a MAP value of: 0.6406
+The system evaluation/avp_simple has a MAP value of: 0.4648

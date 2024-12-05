@@ -23,6 +23,8 @@ app.add_middleware(
 def search(query: Query):
     params = {
         'q': query.query,
+        'defType': 'edismax',
+        'rows': 30,
         'wt': 'json'
     }
     response = requests.get(SOLR_URL, params=params)
@@ -31,3 +33,20 @@ def search(query: Query):
         raise HTTPException(status_code=response.status_code, detail="Error querying SOLR")
     
     return response.json()
+
+@app.get("/episode/{id}")
+def get_episode(id: str):
+    params = {
+        'q': f'id:{id}',
+        'wt': 'json'
+    }
+    response = requests.get(SOLR_URL, params=params)
+    
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Error querying SOLR")
+    
+    results = response.json()
+    if results['response']['numFound'] == 0:
+        raise HTTPException(status_code=404, detail="Episode not found")
+    
+    return results['response']['docs'][0]
