@@ -29,7 +29,7 @@ def query_simple(query_json, solr_uri="http://localhost:8983/solr", collection="
     episodes = set()
     for doc in response["docs"]:
         episodes.add(doc["episode"])
-    print(f"Episodes found: {episodes}")
+    # print(f"Episodes found: {episodes}")
     return response
 
 
@@ -81,7 +81,7 @@ def query_transcript(query_json, solr_uri="http://localhost:8983/solr", entities
     for doc in response["docs"]:
         episodes.add(doc["episode"])
     sorted_episodes = sorted(episodes)
-    print(f"Episodes founda: {sorted_episodes}")
+    # print(f"Episodes founda: {sorted_episodes}")
     return response
 
 def merge_results(normal_results, transcript_results):
@@ -111,28 +111,15 @@ def merge_results(normal_results, transcript_results):
     # sort by score
     sorted_merged = sorted(merged_dict.items(), key=lambda x: x[1], reverse=True)
 
-    print (f"Episodes found: {[episode[0] for episode in sorted_merged]}")
-    print (f"Sorted size: {len(sorted_merged)}")
+    # print (f"Episodes found: {[episode[0] for episode in sorted_merged]}")
+    # print (f"Sorted size: {len(sorted_merged)}")
 
     return sorted_merged[:30]
 
-if __name__ == "__main__":
-    # load entities
-    entities_file =Path(__file__).parent.parent / "docker" / "data" / "entities.json"
-    with open(entities_file, "rb") as f:
-        entities = json.load(f)
-    # load query
-    query_file = Path(__file__).parent.parent / "queries" / "q3.json"
-    with open(query_file) as f:
-        query_json = json.load(f)
-    # query
+def query_new_method(query_json, entities=None):
     normal_result= query_simple(query_json)
-
     transcript_result = query_transcript(query_json, entities=entities)
-
     sorted_result = merge_results(normal_result, transcript_result)
-
-    # fetch the episodes
     query_json = {
     "fields": "episode, score",
     "params": {
@@ -150,14 +137,19 @@ if __name__ == "__main__":
     query_json["params"]["q"] = "episode:" + " OR episode:".join([str(episode[0]) for episode in sorted_result])
     uri = f"http://localhost:8983/solr/episodes/select"
     final_result = query_solr(uri, query_json)
-
-    # ensure order the peisodes in final_result as in sorted_result
     sorted_result_list = [episode[0] for episode in sorted_result]
     final_result["docs"] = sorted(final_result["docs"], key=lambda x: sorted_result_list.index((x["episode"])))
-    # print(json.dumps(final_result, indent=2))
-    print(f"Episodes found: {[doc['episode'] for doc in final_result['docs']]}")
+    return final_result
 
-
-
-
-
+if __name__ == "__main__":
+    # load entities
+    entities_file =Path(__file__).parent.parent / "docker" / "data" / "entities.json"
+    with open(entities_file, "rb") as f:
+        entities = json.load(f)
+    # load query
+    query_file = Path(__file__).parent.parent / "queries" / "q3.json"
+    with open(query_file) as f:
+        query_json = json.load(f)
+    # query
+    result = query_new_method(query_json, entities)
+    print(json.dumps(result, indent=2))
