@@ -12,9 +12,9 @@ solr:
 	make schema
 	sleep 2
 	make populate
-#	sleep 2
+	sleep 2
 #	make semantic_search
-#	make api
+	make api
 
 down:
 	docker compose -f docker/docker-compose.yml down --remove-orphans -v

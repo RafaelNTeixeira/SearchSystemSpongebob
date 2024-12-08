@@ -78,27 +78,32 @@
         {
             "name": "episode",
             "type": "string",
-            "indexed": true
+            "indexed": true,
+            "multiValued": false
         },
         {
             "name": "setting",
             "type": "my_text",
-            "indexed": true
+            "indexed": true,
+            "multiValued": false
         },
         {
             "name": "speaker",
             "type": "string",
-            "indexed": true
+            "indexed": true,
+            "multiValued": false
         },
         {
             "name": "dialogue",
             "type": "my_text",
-            "indexed": true
+            "indexed": true,
+            "multiValued": false
         },
         {
             "name": "actions",
             "type": "my_text",
-            "indexed": true
+            "indexed": true,
+            "multiValued": false
         },
         {
             "name": "vector",

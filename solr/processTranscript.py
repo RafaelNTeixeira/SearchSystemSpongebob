@@ -16,37 +16,52 @@ JSON_FILE_PATH = f"{data_dir_path}/spongebob.json"
 JSON_OUTPUT_PATH = f"{data_dir_path}/processedTranscript.json"
 ENTITIES_OUTPUT_PATH = f"{data_dir_path}/entities.json"
 
+
 def parse_transcript(transcript, episode_id):
-    scene_pattern = r"\[(.*?)\]"
-    dialogue_pattern = r"(\w+): (.*?)(?=\w+:|$)"
-    
-    scenes = re.findall(scene_pattern, transcript)
-    dialogues = re.findall(dialogue_pattern, transcript)
-
     formatted_transcript = []
-
-    if scenes:
-        first_scene = scenes[0].strip()
-        formatted_transcript.append(
-            {
-                'episode' : episode_id,
-                'setting' : first_scene,
-                'dialogues' : "",
-                'actions' : "",
-                'speaker' : ""
-            })
+    scene_index = 0
+    quote_index = 1
+    transcript_elements = transcript.split("//")
+    while quote_index < len(transcript_elements):
+        if (transcript_elements[quote_index][0] == "["):
+            scene_index = quote_index
+            quote_index += 1
+            if quote_index >= len(transcript_elements):
+                formatted_transcript.append(
+                    {
+                        'episode' : episode_id,
+                        'setting' : transcript_elements[scene_index],
+                        'dialogue' : "",
+                        'actions' : "",
+                        'speaker' : ""
+                    })
+                break
         
-        
-        for speaker, dialogue in dialogues:
-            cleaned_dialogue, actions = extract_dialogue_and_actions(dialogue)
-            formatted_transcript.append({
-                'episode': episode_id,
-                'setting': "",
-                'speaker': speaker.strip(),
-                'dialogue': cleaned_dialogue.strip(),
-                'actions': actions
-            })
 
+        quote = transcript_elements[quote_index]
+        quote_parts = quote.split(":")
+        if len(quote_parts) < 2:
+            formatted_transcript.append(
+                {
+                    'episode' : episode_id,
+                    'setting' : transcript_elements[scene_index],
+                    'dialogue' : "",
+                    'actions' : quote,
+                    'speaker' : ""
+                })
+        else:
+            speaker = quote.split(":")[0]
+            dialogue, actions = extract_dialogue_and_actions(quote.split(":")[1])
+            formatted_transcript.append(
+                {
+                    'episode' : episode_id,
+                    'setting' : transcript_elements[scene_index],
+                    'dialogue' : dialogue,
+                    'actions' : actions,
+                    'speaker' : speaker
+                })
+        quote_index = quote_index + 1
+    
     return formatted_transcript
 
 def extract_dialogue_and_actions(dialogue):
@@ -79,9 +94,9 @@ def parse_and_index_transcripts(json_file_path):
     # Entities extraction
     entities = set()
     for document in documents:
-        entities.add(str(document['speaker']))
+        entities.add((str(document['speaker'])).lower())
 
-    entities = list(entities)
+    entities = sorted(list(entities))
 
     with open(ENTITIES_OUTPUT_PATH, 'w') as file:
         json.dump(entities, file, indent=2)
@@ -89,5 +104,9 @@ def parse_and_index_transcripts(json_file_path):
     # print(json.dumps(documents, indent=2)) # Print documents for verification
     with open(JSON_OUTPUT_PATH, 'w') as file:
         json.dump(documents, file, indent=2)
+    
+    # Mean of documents per episode
+    mean = len(documents) / len(data)
+    print(f"Mean of documents per episode: {mean}")
 
 parse_and_index_transcripts(JSON_FILE_PATH)
