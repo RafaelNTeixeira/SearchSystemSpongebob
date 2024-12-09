@@ -3,8 +3,8 @@ import axios from 'axios'
 const SEARCH_URL = 'http://localhost:8000/search';
 const GET_EPISODE_URL = 'http://localhost:8000/episode';
 
-export async function getPaginatedEpisodes(page, pageSize, query = '') {
-    const response = await searchSolr(query);
+export async function getPaginatedEpisodes(page, pageSize, query = '', sortOption = '') {
+    const response = await searchSolr(query, sortOption);
     const filteredEpisodes = response.response.docs;
   
     const startIndex = (page - 1) * pageSize
@@ -17,9 +17,9 @@ export async function getPaginatedEpisodes(page, pageSize, query = '') {
     }
   }
 
-export async function searchSolr(query) {
+export async function searchSolr(query, sortOption = '') {
     try {
-        const response = await axios.post(SEARCH_URL, { query: query });
+        const response = await axios.post(SEARCH_URL, { query: query }, { params: { sort: sortOption } });
         return response.data;
     } catch (error) {
         console.error('Error querying Solr:', error);

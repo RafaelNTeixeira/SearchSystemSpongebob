@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 import requests
 
 app = FastAPI()
@@ -20,13 +21,16 @@ app.add_middleware(
 )
 
 @app.post("/search")
-def search(query: Query):
+def search(query: Query, sort: Optional[str] = None):
     params = {
         'q': query.query,
         'defType': 'edismax',
         'rows': 30,
         'wt': 'json'
     }
+    if sort: 
+        params['sort'] = sort
+        
     response = requests.get(SOLR_URL, params=params)
     
     if response.status_code != 200:
