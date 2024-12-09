@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation"
 import { getEpisode } from '@/app/api/search'
+import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/Logo"
 
 
 export default function EpisodePage() {
@@ -19,21 +21,67 @@ export default function EpisodePage() {
     });
   }, [id]); 
 
+  // Convert Air Date to a human-readable format ("1999-09-18T00:00:00Z" => "September 18, 1999")
   return (
     <div className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-6 text-center">SpongeBob Episode Search</h1>
-        <Link href="/" className="text-blue-500 hover:underline mb-4 inline-block">&larr; Back to search</Link>
-        <Card>
-            <CardHeader>
-            <CardTitle>{episode.title}</CardTitle>
+      <Logo />
+      <Link href="/" className="p-3 bg-slate-800 text-white rounded-lg">&larr; Back to search</Link>
+        <Card className="mt-8">
+            <CardHeader className="flex flex-row justify-between">
+              <CardTitle className="text-2xl">{episode.title}</CardTitle>
+              <div className="flex gap-2">
+              <Link href={episode.url ? episode.url :  "#"}>
+                <Button>View Episode</Button>
+              </Link>
+              <Link href={episode.url ? episode.url + '/transcript' :  "#"}>
+                <Button>View Transcript</Button>
+              </Link>
+              </div>
             </CardHeader>
             <CardContent>
-            <p>Season: {episode.season}</p>
-            <p>Episode: {episode.episode}</p>
-            <p className="mt-4">{episode.description}</p>
+              <div className="flex justify-between">
+                <p><span className="font-semibold">Season:</span> {episode.season}</p>
+                <p><span className="font-semibold">Episode:</span> {episode.episode}</p>
+              </div>
+              <div className="flex justify-between">
+                <p><span className="font-semibold">Air date:</span> {new Date(episode.airdate).toLocaleDateString()}</p>
+                <p><span className="font-semibold">Total Viewers:</span> {episode.us_viewers} M</p>
+              </div>
+              <h2 className="text-xl font-bold mt-4">Synopsis</h2>
+              <p className="mt-2 p-3 rounded-md outline bg-slate-100 text-black">{episode.synopsis}</p>
             </CardContent>
         </Card>
     </div>
   )
 }
 
+const ViewEpisodeButton = ({ url }) => {
+  con
+  return (
+    <Link href={url}>
+      <Button>View Episode</Button>
+    </Link>
+  )
+}
+
+const ViewTranscriptButton = ({ url }) => {
+  return (
+    <Link href={url}>
+      <Button>View Transcript</Button>
+    </Link>
+  )
+}
+
+
+const Transcript = ({ transcript }) => {
+  return (
+    <div className="mt-8">
+      <h2 className="text-xl font-bold">Transcript</h2>
+      <div className="mt-2 p-3 rounded-md outline bg-slate-100 text-black">
+        {transcript.map((line, index) => (
+          <p key={index}>{line}</p>
+        ))}
+      </div>
+    </div>
+  )
+}
