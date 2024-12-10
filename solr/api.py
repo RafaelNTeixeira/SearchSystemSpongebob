@@ -60,7 +60,7 @@ def simple_search(query: Query, sort: Optional[str] = None):
                 filter_queries.append(f"{key}:({' OR '.join(string_values)})")
 
 
-    return query_boosted_api(query=query.query, rows=100, sort=sort, fq=" AND ".join(filter_queries))
+    return query_simple_api(query=query.query, rows=100, sort=sort, fq=" AND ".join(filter_queries))
 
 @app.post("/boosted")
 def boosted_search(query: Query, sort: Optional[str] = None):
@@ -71,7 +71,7 @@ def boosted_search(query: Query, sort: Optional[str] = None):
                 string_values = [str(value) for value in values]
                 filter_queries.append(f"{key}:({' OR '.join(string_values)})")
 
-    return query_simple_api(query=query.query, rows=100, sort=sort, fq=" AND ".join(filter_queries))
+    return query_boosted_api(query=query.query, rows=100, sort=sort, fq=" AND ".join(filter_queries))
 
 @app.post("/semantic")
 def semantic_search(query: Query, sort: Optional[str] = None):

@@ -104,9 +104,10 @@ export default function SpongeBobSearch() {
           placeholder="Search episodes..."
           value={searchQuery}
           onChange={handleSearch}
-          className="mt-8 w-1/2 mx-auto"
+          className="mt-8 w-1/2 mx-auto pl-4 !text-lg text-black shadow-2xl shadow-blue-400 focus-visible:ring-blue-400 rounded-md"
+
         />
-            <select
+        <select
           title='Sort Episodes'
           value={sortOption}
           onChange={handleSortChange}
