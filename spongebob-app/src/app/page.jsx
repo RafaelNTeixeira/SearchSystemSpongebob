@@ -90,7 +90,7 @@ export default function SpongeBobSearch() {
           title='Search Type'
           value={searchEndpoint}
           onChange={handleSearchChange}
-          className="absolute top-44 left-40 p-2 border rounded-md"
+          className="absolute top-44 left-40 capitalize p-2 border rounded-md"
         >
           {Object.keys(SearchEndpoints).map((endpoint) => (
             <option key={endpoint} value={endpoint}>
@@ -146,16 +146,28 @@ export default function SpongeBobSearch() {
             <p className="text-center text-gray-500 mt-4">No episodes found.</p>
           )}
           <div className="mt-6 flex justify-center items-center space-x-4">
-            <Button onClick={handlePrevPage} disabled={currentPage === 1}>
+            <FigmaButton onClick={handlePrevPage} disabled={currentPage === 1}>
               Previous
-            </Button>
+            </FigmaButton>
             <span>Page {currentPage} of {totalPages}</span>
-            <Button onClick={handleNextPage} disabled={currentPage === totalPages}>
+            <FigmaButton onClick={handleNextPage} disabled={currentPage === totalPages}>
               Next
-            </Button>
+            </FigmaButton>
           </div>
         </>
       )}
     </div>
+  );
+}
+
+const FigmaButton = ({ children, onClick, disabled }) => {
+  return (
+    <button 
+      onClick={onClick}
+      disabled={disabled}
+      className={"px-6 py-2 bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-900/90 rounded-lg font-bold transform hover:-translate-y-1 transition duration-400 " + (disabled ? 'hover:translate-y-0 opacity-50' : '')}
+    >
+      {children}
+    </button>
   );
 }
