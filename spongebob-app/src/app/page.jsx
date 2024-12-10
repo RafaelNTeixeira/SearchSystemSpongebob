@@ -14,22 +14,12 @@ export default function SpongeBobSearch() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [sortOption, setSortOption] = useState('');
+  const [seasonSize, setSeasonSize] = useState(1);
+  const [seasonOption, setSeasonOption] = useState([]);
   const [filters, setFilters] = useState({
     season: [] 
   });
 
-  const toggleFilter = (category, value) => {
-    setFilters((prev) => {
-      const updated = { ...prev };
-      const valueStr = value.toString();
-      if (updated[category].includes(valueStr)) {
-        updated[category] = updated[category].filter((v) => v !== valueStr);
-      } else {
-        updated[category].push(valueStr);
-      }
-      return updated;
-    });
-  };
 
   const fetchEpisodes = async () => {
     setIsLoading(true);
@@ -62,6 +52,22 @@ export default function SpongeBobSearch() {
     setCurrentPage(1);
   };
 
+  const handleSeasonOver = () => {
+    setSeasonSize(seasons.length);
+  };
+
+  const handleSeasonOut = () => {
+    setSeasonSize(1);
+  };
+
+  const handleSeasonChange = (e) => {
+    const selected = Array.from(e.target.selectedOptions, (option) => option.value);
+    setSeasonOption(selected);
+    setFilters((prev) => ({ ...prev, season: selected }));
+    setCurrentPage(1);
+  };
+
+
   useEffect(() => {
     fetchEpisodes();
   }, [currentPage, searchQuery, sortOption, filters]);
@@ -71,40 +77,42 @@ export default function SpongeBobSearch() {
   return (
     <div className="container mx-auto p-4">
       <Logo />
-      <div className="flex flex-wrap justify-between items-center mb-6">
-        <Input
-          type="text"
-          placeholder="Search episodes..."
-          value={searchQuery}
-          onChange={handleSearch}
-          className="w-full md:w-auto mb-4 md:mb-0"
-        />
+      <section className="mb-10">
         <select
+          title='Sort Episodes'
           value={sortOption}
           onChange={handleSortChange}
-          className="p-2 border rounded-md"
+          className="absolute top-44 right-36 p-2 border rounded-md"
         >
           <option value="">Relevance</option>
           <option value="airdate desc">Most Recent Episodes</option>
           <option value="running_time desc">Longest Episodes</option>
         </select>
-      </div>
-      <div className="filters">
-        <h3>Filters</h3>
-        <div>
-          <h4>Season</h4>
+        <Input
+          type="text"
+          title='Search Episodes'
+          placeholder="Search episodes..."
+          value={searchQuery}
+          onChange={handleSearch}
+          className="mt-8 w-1/2 mx-auto"
+        />
+        <select
+          title='Filter Seasons'
+          value={seasonOption}
+          multiple={true}
+          size={seasonSize}
+          onMouseOver={handleSeasonOver}
+          onMouseOut={handleSeasonOut}
+          onChange={handleSeasonChange}
+          className="absolute top-44 right-10 z-10 p-1 border rounded-md"
+        >
           {seasons.map((season) => (
-            <label key={season}>
-              <input
-                type="checkbox"
-                checked={filters.season.includes(season.toString())}
-                onChange={() => toggleFilter('season', season)}
-              />
+            <option key={season} value={season} className={'p-1.5 rounded-md'}>
               Season {season}
-            </label>
+            </option>
           ))}
-        </div>
-      </div>
+        </select>
+      </section>
       {isLoading ? (
         <p className="text-center">Loading...</p>
       ) : (
