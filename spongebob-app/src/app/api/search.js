@@ -3,15 +3,15 @@ import axios from 'axios'
 const BASE_URL = 'http://localhost:8000';
 
 export const SearchEndpoints = {
-    simple: 'search',
-    boosted: 'boosted_search',
-    semantic: 'semantic_search',
-    transcript: 'transcript_search'
+    simple: 'simple',
+    boosted: 'boosted',
+    semantic: 'semantic',
+    transcript: 'transcript'
 };
 
 export async function getPaginatedEpisodes(page, pageSize, query = '', sortOption = '', filters = {}, endpoint) {
     const response = await searchSolr(query, sortOption, filters, endpoint);
-    const filteredEpisodes = response.response.docs;
+    const filteredEpisodes = response.docs;
   
     const startIndex = (page - 1) * pageSize
     const endIndex = startIndex + pageSize
@@ -23,7 +23,7 @@ export async function getPaginatedEpisodes(page, pageSize, query = '', sortOptio
     }
 }
 
-export async function searchSolr(query, sortOption = '', filters = {}, endpoint="search") {
+export async function searchSolr(query, sortOption = '', filters = {}, endpoint="simple") {
     try {
         const response = await axios.post(BASE_URL + '/' + endpoint, { query: query, filters: filters}, { params: { sort: sortOption } });
         return response.data;

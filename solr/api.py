@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 import requests
+from scripts.query_api import query_simple_api, query_boosted_api, query_semantic_api, query_transcript_api
 
 app = FastAPI()
 
@@ -48,6 +49,51 @@ def search(query: Query, sort: Optional[str] = None):
         raise HTTPException(status_code=response.status_code, detail="Error querying SOLR")
     
     return response.json()
+
+@app.post("/simple")
+def simple_search(query: Query, sort: Optional[str] = None):
+    if query.filters:
+        filter_queries = []
+        for key, values in query.filters.items():
+            if values: 
+                string_values = [str(value) for value in values]
+                filter_queries.append(f"{key}:({' OR '.join(string_values)})")
+
+
+    return query_boosted_api(query=query.query, rows=100, sort=sort, fq=" AND ".join(filter_queries))
+
+@app.post("/boosted")
+def boosted_search(query: Query, sort: Optional[str] = None):
+    if query.filters:
+        filter_queries = []
+        for key, values in query.filters.items():
+            if values: 
+                string_values = [str(value) for value in values]
+                filter_queries.append(f"{key}:({' OR '.join(string_values)})")
+
+    return query_simple_api(query=query.query, rows=100, sort=sort, fq=" AND ".join(filter_queries))
+
+@app.post("/semantic")
+def semantic_search(query: Query, sort: Optional[str] = None):
+    if query.filters:
+        filter_queries = []
+        for key, values in query.filters.items():
+            if values: 
+                string_values = [str(value) for value in values]
+                filter_queries.append(f"{key}:({' OR '.join(string_values)})")
+
+    return query_semantic_api(query=query.query, rows=100, sort=sort, fq=" AND ".join(filter_queries))
+
+@app.post("/transcript")
+def transcript_search(query: Query, sort: Optional[str] = None):
+    if query.filters:
+        filter_queries = []
+        for key, values in query.filters.items():
+            if values: 
+                string_values = [str(value) for value in values]
+                filter_queries.append(f"{key}:({' OR '.join(string_values)})")
+
+    return query_transcript_api(query=query.query, rows=100, sort=sort, fq=" AND ".join(filter_queries))
 
 @app.get("/episode/{id}")
 def get_episode(id: str):
