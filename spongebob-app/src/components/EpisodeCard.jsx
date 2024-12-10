@@ -11,6 +11,8 @@ export function EpisodeCard({ episode }) {
           <CardContent>
             <p>Season: {episode.season}</p>
             <p>Episode: {episode.episode}</p>
+            <p>Airdate: {new Date(episode.airdate).toLocaleDateString()}</p>
+            <p>Running Time: {episode.running_time}</p>
           </CardContent>
         </Card>
       </Link>
