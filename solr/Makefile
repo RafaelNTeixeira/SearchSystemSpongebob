@@ -13,7 +13,7 @@ solr:
 	sleep 2
 	make populate
 	sleep 2
-#	make semantic_search
+	make semantic_search
 	make api
 
 down:
@@ -50,7 +50,7 @@ api:
 	uvicorn api:app --host 0.0.0.0 --port 8000 --reload
 
 semantic_search:
-	python semantic_search/get_embeddings.py
+	python scripts/semantic_search/get_embeddings.py
 
 prepare_study_subset: 
 	python create_study_subset.py

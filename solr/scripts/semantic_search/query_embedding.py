@@ -9,15 +9,16 @@ def text_to_embedding(text):
     embedding_str = "[" + ",".join(map(str, embedding)) + "]"
     return embedding_str
 
-def solr_knn_query(endpoint, collection, embedding):
+def solr_knn_query(endpoint, collection, embedding, k=10, rows=10, **kwargs):
     url = f"{endpoint}/{collection}/select"
 
     data = {
-        "q": f"{{!knn f=vector topK=10}}{embedding}",
+        "q": f"{{!knn f=vector topK={k}}}{embedding}",
         "fl": "id,title,score",
-        "rows": 10,
+        "rows": rows,
         "wt": "json"
     }
+    data.update(kwargs)
     
     headers = {
         "Content-Type": "application/x-www-form-urlencoded"

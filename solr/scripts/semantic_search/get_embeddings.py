@@ -33,4 +33,4 @@ if __name__ == "__main__":
     solr.add(updated_documents)
     solr.commit()
 
-    json.dump(updated_documents, sys.stdout, indent=4, ensure_ascii=False)
+    # json.dump(updated_documents, sys.stdout, indent=4, ensure_ascii=False)
