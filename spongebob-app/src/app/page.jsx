@@ -80,7 +80,7 @@ export default function SpongeBobSearch() {
     fetchEpisodes();
   }, [currentPage, searchQuery, searchEndpoint, sortOption, filters]);
 
-  const seasons = [1, 2, 3, 4, 5]; // List of seasons to display
+  const seasons = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15];
 
   return (
     <div className="container mx-auto p-4">
@@ -127,7 +127,7 @@ export default function SpongeBobSearch() {
           className="absolute top-44 right-14 z-10 p-1 border rounded-md"
         >
           {seasons.map((season) => (
-            <option key={season} value={season} className={'p-1.5 rounded-md'}>
+            <option key={season} value={season} className={'p-1.5 rounded-md mb-1'}>
               Season {season}
             </option>
           ))}
