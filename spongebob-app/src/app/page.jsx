@@ -1,54 +1,72 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { getPaginatedEpisodes } from '@/app/api/search'
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { EpisodeCard } from "@/components/EpisodeCard"
-import { Logo } from "@/components/Logo"
+import { useEffect, useState } from 'react';
+import { getPaginatedEpisodes } from '@/app/api/search';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { EpisodeCard } from "@/components/EpisodeCard";
+import { Logo } from "@/components/Logo";
 
 export default function SpongeBobSearch() {
-  const [searchQuery, setSearchQuery] = useState('*')
+  const [searchQuery, setSearchQuery] = useState('*');
   const [episodes, setEpisodes] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [sortOption, setSortOption] = useState('') 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [sortOption, setSortOption] = useState('');
+  const [filters, setFilters] = useState({
+    season: [] 
+  });
+
+  const toggleFilter = (category, value) => {
+    setFilters((prev) => {
+      const updated = { ...prev };
+      const valueStr = value.toString();
+      if (updated[category].includes(valueStr)) {
+        updated[category] = updated[category].filter((v) => v !== valueStr);
+      } else {
+        updated[category].push(valueStr);
+      }
+      return updated;
+    });
+  };
 
   const fetchEpisodes = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const data = await getPaginatedEpisodes(currentPage, 6, searchQuery, sortOption)
-      setEpisodes(data.episodes)
-      setTotalPages(data.totalPages)
+      const data = await getPaginatedEpisodes(currentPage, 6, searchQuery, sortOption, filters);
+      setEpisodes(data.episodes);
+      setTotalPages(data.totalPages);
     } catch (error) {
-      console.error('Error fetching episodes:', error)
+      console.error('Error fetching episodes:', error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleSearch = (e) => {
-    setSearchQuery(e.target.value)
-    setCurrentPage(1)
-  }
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
 
   const handlePrevPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1))
-  }
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
 
   const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages))
-  }
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
 
   const handleSortChange = (e) => {
-    setSortOption(e.target.value)
-    setCurrentPage(1) 
-  }
+    setSortOption(e.target.value);
+    setCurrentPage(1);
+  };
 
   useEffect(() => {
-    fetchEpisodes()
-  }, [currentPage, searchQuery, sortOption])
+    fetchEpisodes();
+  }, [currentPage, searchQuery, sortOption, filters]);
+
+  const seasons = [1, 2, 3, 4, 5]; // List of seasons to display
 
   return (
     <div className="container mx-auto p-4">
@@ -71,12 +89,28 @@ export default function SpongeBobSearch() {
           <option value="running_time desc">Longest Episodes</option>
         </select>
       </div>
+      <div className="filters">
+        <h3>Filters</h3>
+        <div>
+          <h4>Season</h4>
+          {seasons.map((season) => (
+            <label key={season}>
+              <input
+                type="checkbox"
+                checked={filters.season.includes(season.toString())}
+                onChange={() => toggleFilter('season', season)}
+              />
+              Season {season}
+            </label>
+          ))}
+        </div>
+      </div>
       {isLoading ? (
         <p className="text-center">Loading...</p>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {episodes.map(episode => (
+            {episodes.map((episode) => (
               <EpisodeCard key={episode.id} episode={episode} />
             ))}
           </div>
@@ -95,5 +129,5 @@ export default function SpongeBobSearch() {
         </>
       )}
     </div>
-  )
+  );
 }

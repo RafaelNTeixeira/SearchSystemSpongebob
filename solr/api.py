@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Dict, List, Optional
 import requests
 
 app = FastAPI()
@@ -10,6 +10,7 @@ SOLR_URL = "http://localhost:8983/solr/episodes/select"
 
 class Query(BaseModel):
     query: str
+    filters: Optional[Dict[str, list]] = None  
 
 # Add CORS middleware
 app.add_middleware(
@@ -25,12 +26,22 @@ def search(query: Query, sort: Optional[str] = None):
     params = {
         'q': query.query,
         'defType': 'edismax',
-        'rows': 30,
+        'rows': 100,
         'wt': 'json'
     }
     if sort: 
         params['sort'] = sort
-        
+    
+    if query.filters:
+        filter_queries = []
+        for key, values in query.filters.items():
+            if values: 
+                string_values = [str(value) for value in values]
+                filter_queries.append(f"{key}:({' OR '.join(string_values)})")
+
+        if filter_queries:
+            params['fq'] = " AND ".join(filter_queries)  
+
     response = requests.get(SOLR_URL, params=params)
     
     if response.status_code != 200:
