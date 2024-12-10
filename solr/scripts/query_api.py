@@ -2,7 +2,7 @@ import requests
 import json
 import sys
 from pathlib import Path
-from semantic_search.query_embedding import text_to_embedding, solr_knn_query
+from scripts.semantic_search.query_embedding import text_to_embedding, solr_knn_query
 
 # Load the entities from the JSON file
 curr_dir = Path(__file__).parent.parent
