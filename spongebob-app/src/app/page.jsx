@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getPaginatedEpisodes } from '@/app/api/search';
+import { SearchEndpoints, getPaginatedEpisodes } from '@/app/api/search';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EpisodeCard } from "@/components/EpisodeCard";
@@ -16,6 +16,7 @@ export default function SpongeBobSearch() {
   const [sortOption, setSortOption] = useState('');
   const [seasonSize, setSeasonSize] = useState(1);
   const [seasonOption, setSeasonOption] = useState([]);
+  const [searchEndpoint, setSearchEndpoint] = useState(SearchEndpoints.simple);
   const [filters, setFilters] = useState({
     season: [] 
   });
@@ -24,7 +25,7 @@ export default function SpongeBobSearch() {
   const fetchEpisodes = async () => {
     setIsLoading(true);
     try {
-      const data = await getPaginatedEpisodes(currentPage, 6, searchQuery, sortOption, filters);
+      const data = await getPaginatedEpisodes(currentPage, 6, searchQuery, sortOption, filters, searchEndpoint);
       setEpisodes(data.episodes);
       setTotalPages(data.totalPages);
     } catch (error) {
@@ -38,6 +39,13 @@ export default function SpongeBobSearch() {
     setSearchQuery(e.target.value);
     setCurrentPage(1);
   };
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    const endpoint = SearchEndpoints[value];
+    setSearchEndpoint(endpoint);
+    setCurrentPage(1);
+  }
 
   const handlePrevPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
@@ -70,7 +78,7 @@ export default function SpongeBobSearch() {
 
   useEffect(() => {
     fetchEpisodes();
-  }, [currentPage, searchQuery, sortOption, filters]);
+  }, [currentPage, searchQuery, searchEndpoint, sortOption, filters]);
 
   const seasons = [1, 2, 3, 4, 5]; // List of seasons to display
 
@@ -78,15 +86,17 @@ export default function SpongeBobSearch() {
     <div className="container mx-auto p-4">
       <Logo />
       <section className="mb-10">
-        <select
-          title='Sort Episodes'
-          value={sortOption}
-          onChange={handleSortChange}
-          className="absolute top-44 right-40 p-2 border rounded-md"
+      <select
+          title='Search Type'
+          value={searchEndpoint}
+          onChange={handleSearchChange}
+          className="absolute top-44 left-40 p-2 border rounded-md"
         >
-          <option value="">Relevance</option>
-          <option value="airdate desc">Most Recent Episodes</option>
-          <option value="running_time desc">Longest Episodes</option>
+          {Object.keys(SearchEndpoints).map((endpoint) => (
+            <option key={endpoint} value={endpoint}>
+              {endpoint}
+            </option>
+          ))}
         </select>
         <Input
           type="text"
@@ -96,6 +106,16 @@ export default function SpongeBobSearch() {
           onChange={handleSearch}
           className="mt-8 w-1/2 mx-auto"
         />
+            <select
+          title='Sort Episodes'
+          value={sortOption}
+          onChange={handleSortChange}
+          className="absolute top-44 right-40 p-2 border rounded-md"
+        >
+          <option value="">Relevance</option>
+          <option value="airdate desc">Most Recent Episodes</option>
+          <option value="running_time desc">Longest Episodes</option>
+        </select>
         <select
           title='Filter Seasons'
           value={seasonOption}
