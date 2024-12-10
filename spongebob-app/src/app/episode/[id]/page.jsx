@@ -2,11 +2,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from 'next/link'
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation"
 import { getEpisode } from '@/app/api/search'
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/Logo"
+import { Footer } from '@/components/Footer';
 
 
 export default function EpisodePage() {
@@ -23,9 +24,10 @@ export default function EpisodePage() {
 
 
   return (
-    <div className="container mx-auto p-4">
-      <Logo />
-      <Link href="/" className="p-3 bg-slate-800 text-white rounded-lg">&larr; Back to search</Link>
+    <section className='flex flex-col justify-between'>
+      <div className="container mx-auto p-4">
+        <Logo />
+        <Link href="/" className="p-3 bg-slate-800 text-white rounded-lg">&larr; Back to search</Link>
         <Card className="mt-8">
             <CardHeader className="flex flex-row justify-between">
               <CardTitle className="text-2xl">{episode.title}</CardTitle>
@@ -52,7 +54,9 @@ export default function EpisodePage() {
               <Transcript transcript={episode.transcript} />
             </CardContent>
         </Card>
-    </div>
+      </div>
+      <Footer />
+    </section>
   )
 }
 

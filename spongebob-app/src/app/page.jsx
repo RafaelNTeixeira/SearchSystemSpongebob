@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { SearchEndpoints, getPaginatedEpisodes } from '@/app/api/search';
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { EpisodeCard } from "@/components/EpisodeCard";
 import { Logo } from "@/components/Logo";
+import { Footer } from '@/components/Footer';
 
 export default function SpongeBobSearch() {
   const [searchQuery, setSearchQuery] = useState('*');
@@ -36,7 +36,8 @@ export default function SpongeBobSearch() {
   };
 
   const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
+    if (e.target.value === '') setSearchQuery('*');
+    else setSearchQuery(e.target.value);
     setCurrentPage(1);
   };
 
@@ -83,81 +84,83 @@ export default function SpongeBobSearch() {
   const seasons = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15];
 
   return (
-    <div className="container mx-auto p-4">
-      <Logo />
-      <section className="mb-10">
-      <select
-          title='Search Type'
-          value={searchEndpoint}
-          onChange={handleSearchChange}
-          className="absolute top-44 left-40 capitalize p-2 border rounded-md"
-        >
-          {Object.keys(SearchEndpoints).map((endpoint) => (
-            <option key={endpoint} value={endpoint}>
-              {endpoint}
-            </option>
-          ))}
-        </select>
-        <Input
-          type="text"
-          title='Search Episodes'
-          placeholder="Search episodes..."
-          value={searchQuery}
-          onChange={handleSearch}
-          className="mt-8 w-1/2 mx-auto pl-4 !text-lg text-black shadow-2xl shadow-blue-400 focus-visible:ring-blue-400 rounded-md"
-
-        />
-        <select
-          title='Sort Episodes'
-          value={sortOption}
-          onChange={handleSortChange}
-          className="absolute top-44 right-40 p-2 border rounded-md"
-        >
-          <option value="">Relevance</option>
-          <option value="airdate desc">Most Recent Episodes</option>
-          <option value="running_time desc">Longest Episodes</option>
-        </select>
-        <select
-          title='Filter Seasons'
-          value={seasonOption}
-          multiple={true}
-          size={seasonSize}
-          onMouseOver={handleSeasonOver}
-          onMouseOut={handleSeasonOut}
-          onChange={handleSeasonChange}
-          className="absolute top-44 right-14 z-10 p-1 border rounded-md"
-        >
-          {seasons.map((season) => (
-            <option key={season} value={season} className={'p-1.5 rounded-md mb-1'}>
-              Season {season}
-            </option>
-          ))}
-        </select>
-      </section>
-      {isLoading ? (
-        <p className="text-center">Loading...</p>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {episodes.map((episode) => (
-              <EpisodeCard key={episode.id} episode={episode} />
+    <section className='flex flex-col justify-between'>
+      <div className="container mx-auto p-4 h-screen">
+        <Logo />
+        <div className="mb-10">
+          <select
+            title='Search Type'
+            value={searchEndpoint}
+            onChange={handleSearchChange}
+            className="absolute top-44 left-40 capitalize p-2 border rounded-md"
+          >
+            {Object.keys(SearchEndpoints).map((endpoint) => (
+              <option key={endpoint} value={endpoint}>
+                {endpoint}
+              </option>
             ))}
-          </div>
-          {episodes.length === 0 && (
-            <p className="text-center text-gray-500 mt-4">No episodes found.</p>
-          )}
-          <div className="mt-6 flex justify-center items-center space-x-4">
-            <FigmaButton onClick={handlePrevPage} disabled={currentPage === 1}>
-              Previous
-            </FigmaButton>
-            <span>Page {currentPage} of {totalPages}</span>
-            <FigmaButton onClick={handleNextPage} disabled={currentPage === totalPages}>
-              Next
-            </FigmaButton>
-          </div>
-        </>
-      )}
-    </div>
+          </select>
+          <Input
+            type="text"
+            title='Search Episodes'
+            placeholder="Search episodes..."
+            onChange={handleSearch}
+            className="mt-8 w-1/2 mx-auto pl-4 !text-lg text-black shadow-2xl shadow-blue-400 focus-visible:ring-blue-400 rounded-md"
+
+          />
+          <select
+            title='Sort Episodes'
+            value={sortOption}
+            onChange={handleSortChange}
+            className="absolute top-44 right-40 p-2 border rounded-md"
+          >
+            <option value="">Relevance</option>
+            <option value="airdate desc">Most Recent Episodes</option>
+            <option value="running_time desc">Longest Episodes</option>
+          </select>
+          <select
+            title='Filter Seasons'
+            value={seasonOption}
+            multiple={true}
+            size={seasonSize}
+            onMouseOver={handleSeasonOver}
+            onMouseOut={handleSeasonOut}
+            onChange={handleSeasonChange}
+            className="absolute top-44 right-14 z-10 p-1 border rounded-md"
+          >
+            {seasons.map((season) => (
+              <option key={season} value={season} className={'p-1.5 rounded-md mb-1'}>
+                Season {season}
+              </option>
+            ))}
+          </select>
+        </div>
+        {isLoading ? (
+          <p className="text-center text-lg">Loading...</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {episodes.map((episode) => (
+                <EpisodeCard key={episode.id} episode={episode} />
+              ))}
+            </div>
+            {episodes.length === 0 && (
+              <p className="text-center text-gray-500 mt-4">No episodes found.</p>
+            )}
+            <div className="mt-6 flex justify-center items-center space-x-4">
+              <FigmaButton onClick={handlePrevPage} disabled={currentPage === 1}>
+                Previous
+              </FigmaButton>
+              <span>Page {currentPage} of {totalPages}</span>
+              <FigmaButton onClick={handleNextPage} disabled={currentPage === totalPages}>
+                Next
+              </FigmaButton>
+            </div>
+          </>
+        )}
+      </div>
+      <Footer />
+    </section>
   );
 }
 
