@@ -82,7 +82,7 @@ export default function SpongeBobSearch() {
           title='Sort Episodes'
           value={sortOption}
           onChange={handleSortChange}
-          className="absolute top-44 right-36 p-2 border rounded-md"
+          className="absolute top-44 right-40 p-2 border rounded-md"
         >
           <option value="">Relevance</option>
           <option value="airdate desc">Most Recent Episodes</option>
@@ -104,7 +104,7 @@ export default function SpongeBobSearch() {
           onMouseOver={handleSeasonOver}
           onMouseOut={handleSeasonOut}
           onChange={handleSeasonChange}
-          className="absolute top-44 right-10 z-10 p-1 border rounded-md"
+          className="absolute top-44 right-14 z-10 p-1 border rounded-md"
         >
           {seasons.map((season) => (
             <option key={season} value={season} className={'p-1.5 rounded-md'}>
