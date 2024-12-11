@@ -45,10 +45,18 @@ if __name__ == "__main__":
         help="Experiment or system identifier (default: run0).",
     )
 
-    # Parse command-line arguments
-    args = parser.parse_args()
+    try:
+        # Parse the command-line arguments
+        args = parser.parse_args()
 
-    # Load Solr response from STDIN
-    solr_response = json.load(sys.stdin)
-    # Convert Solr results to TREC format and write to STDOUT
-    solr_to_trec(solr_response, args.run_id)
+        # Load Solr response from STDIN
+        # Convert Solr results to TREC format and write to STDOUT
+        solr_response = json.load(sys.stdin)
+        solr_to_trec(solr_response, args.run_id)
+        # print(sys.stdin.read())
+
+
+    
+    except json.JSONDecodeError:
+        print(f"Error: Invalid JSON input. Unable to parse Solr response.")
+        sys.exit(1)

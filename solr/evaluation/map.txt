@@ -1,2 +1,4 @@
-The system evaluation/avp_boosted has a MAP value of: 0.6406
-The system evaluation/avp_simple has a MAP value of: 0.4648
+The system evaluation/avp_boosted has a MAP value of: 0.5407
+The system evaluation/avp_simple has a MAP value of: 0.4314
+The system evaluation/avp_semantic has a MAP value of: 0.3837
+The system evaluation/avp_transcript has a MAP value of: 0.5543

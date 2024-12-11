@@ -2,15 +2,46 @@ import requests
 import json
 import sys
 from pathlib import Path
-from scripts.semantic_search.query_embedding import text_to_embedding, solr_knn_query
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer("spongebob_model")
 
 # Load the entities from the JSON file
 curr_dir = Path(__file__).parent.parent
 entities_file = curr_dir / "docker" / "data" / "entities.json"
 entities = json.load(open(entities_file, "rb"))
 
+def get_embedding(text):
+    # The model.encode() method already returns a list of floats
+    return model.encode(text, convert_to_tensor=False).tolist()
+
+def text_to_embedding(text):
+    embedding = model.encode(text, convert_to_tensor=False).tolist()
+    
+    # Convert the embedding to the expected format
+    embedding_str = "[" + ",".join(map(str, embedding)) + "]"
+    return embedding_str
+
+def solr_knn_query(endpoint, collection, embedding, k=10, rows=10, **kwargs):
+    url = f"{endpoint}/{collection}/select"
+
+    data = {
+        "q": f"{{!knn f=vector topK={k}}}{embedding}",
+        "fl": "*,score",
+        "rows": rows,
+        "wt": "json"
+    }
+    data.update(kwargs)
+    
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    
+    response = requests.post(url, data=data, headers=headers)
+    response.raise_for_status()
+    return response.json()
+
 def query_solr(uri, query_json):
-    print(f"Querying Solr at {uri} with query: {query_json}")
     try:
         response = requests.post(uri, json=query_json)
         response.raise_for_status()
@@ -29,15 +60,10 @@ def query_solr(uri, query_json):
 def query_simple(query_json, solr_uri="http://localhost:8983/solr", collection="episodes"):
     uri = f"{solr_uri}/{collection}/select"
     response = query_solr(uri, query_json)
-    episodes = set()
-    for doc in response["docs"]:
-        episodes.add(doc["episode"])
-    # print(f"Episodes found: {episodes}")
     return response
 
 
 def build_transcript_query(query_json, entities=None):
-
     query_params = query_json["params"]
     entities_list: list = []
     words = query_params["q"].split()
@@ -66,7 +92,7 @@ def build_transcript_query(query_json, entities=None):
         "defType": query_params["defType"],
         "qf": "speaker^5 actions^3 dialogue setting",
         "pf": "speaker^3 actions^5 dialogue setting",
-        "ps": query_params["ps"],
+        "ps": query_params["ps"] if "ps" in query_params else 0,
         "wt": query_params["wt"],
         "df": "dialogue"
     }
@@ -80,11 +106,6 @@ def query_transcript(query_json, solr_uri="http://localhost:8983/solr", entities
     uri = f"{solr_uri}/transcript_processed/select"
     query_params = build_transcript_query(query_json, entities)
     response = query_solr(uri, query_params)
-    episodes = set()
-    for doc in response["docs"]:
-        episodes.add(doc["episode"])
-    # sorted_episodes = sorted(episodes)
-    # print(f"Episodes founda: {sorted_episodes}")
     return response
 
 def merge_results(normal_results, transcript_results):
@@ -119,7 +140,7 @@ def merge_results(normal_results, transcript_results):
 
     return sorted_merged[:30]
 
-def query_transcript_method(query_json, entities=None):
+def query_transcript_method(query_json, entities=entities):
     normal_result= query_simple(query_json)
     transcript_result = query_transcript(query_json, entities=entities)
     sorted_result = merge_results(normal_result, transcript_result)
@@ -158,7 +179,8 @@ def query_simple_api(query:str ="", rows:int=0, sort:str="", fq:str=""):
             "defType": "edismax",
             "wt": "json",
             "fq": fq,
-            "q": query
+            "q": query,
+            "df": "transcript"
         }
     }
     uri = f"http://localhost:8983/solr/schemaless_subset/select"
@@ -190,36 +212,13 @@ def query_boosted_api(query:str ="", rows:int=0, sort:str="", fq:str=""):
     return query_solr(uri, query_json)
 
 def query_semantic_api(query:str= "", rows:int=10, sort:str="score desc", fq:str=""):
-    phrase_slop = len(query.split())//2
-    query_json = {
-    "fields": "episode, score",
-    "params": {
-        "indent": "true",
-        "fl": "*",
-        "start": "0",
-        "q.op": "AND",
-        "sort": sort,
-        "rows": rows,
-        "lowercaseOperators": "false",
-        "q": query,
-        "defType": "edismax",
-        "qf": "transcript^3 title^5 synopsis",
-        "pf": "transcript^3 title^5 synopsis",
-        "ps": phrase_slop,
-        "wt": "json",
-        "df": "transcript",
-        "fq": fq
-        }
-    }
-    return query_transcript_method(query_json, entities)
-
-def query_semantic_api(query:str= "", rows:int=10, sort:str="score desc", fq:str=""):
     embedding = text_to_embedding(query)
     kwargs = {
         "fq": fq,
         "sort": sort,
     }
-    return solr_knn_query("http://localhost:8983/solr", "episodes", embedding, k=rows, rows=rows, **kwargs)["response"]
+    result = solr_knn_query("http://localhost:8983/solr", "episodes", embedding, k=rows, rows=rows, **kwargs)
+    return result["response"]
 
 def query_transcript_api(query:str= "", rows:int=10, sort:str="score desc", fq:str=""):
     phrase_slop = len(query.split())//2
@@ -244,15 +243,3 @@ def query_transcript_api(query:str= "", rows:int=10, sort:str="score desc", fq:s
         }
     }
     return query_transcript_method(query_json, entities)
-    
-
-if __name__ == "__main__":
-    # load query
-    query_file = Path(__file__).parent.parent / "queries" / "q3.json"
-    with open(query_file) as f:
-        query_json = json.load(f)
-    # query
-    result = query_semantic_api("spongebob drive", 10, "score desc")
-    print(len(result["docs"]))
-    # result = query_new_method(query_json, entities)
-    # print(json.dumps(result, indent=2))

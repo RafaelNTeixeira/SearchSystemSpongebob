@@ -50,7 +50,7 @@ api:
 	uvicorn api:app --host 0.0.0.0 --port 8000 --reload
 
 semantic_search:
-	python scripts/semantic_search/get_embeddings.py
+	python scripts/get_embeddings.py
 
 prepare_study_subset: 
 	python create_study_subset.py
@@ -90,14 +90,22 @@ evaluate_all:
 	rm -f evaluation/map.txt
 	make calculate_map_boosted
 	make calculate_map_simple
+	make calculate_map_semantic
+	make calculate_map_transcript
 
-evaluate_queries: $(foreach qN,$(QUERIES),evaluate_$(qN) evaluate_simple_$(qN))
+evaluate_queries: $(foreach qN,$(QUERIES),evaluate_$(qN) evaluate_simple_$(qN) evaluate_semantic_$(qN) evaluate_transcript_$(qN))
 
 calculate_map_simple: 
 	python scripts/systems_map.py --avp_folder evaluation/avp_simple
 
 calculate_map_boosted: 
 	python scripts/systems_map.py --avp_folder evaluation/avp_boosted
+
+calculate_map_semantic:
+	python scripts/systems_map.py --avp_folder evaluation/avp_semantic
+
+calculate_map_transcript:
+	python scripts/systems_map.py --avp_folder evaluation/avp_transcript
 
 define EVALUATE_RULE
 evaluate_$(1):
@@ -118,3 +126,23 @@ evaluate_simple_$(1):
 	cat evaluation/results_q$(1)_simple_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(1)_simple.txt --output evaluation/prec_rec_q$(1)_simple.png --output_avp evaluation/avp_simple/q$(1).txt
 endef
 $(foreach qN,$(QUERIES),$(eval $(call EVALUATE_SIMPLE_RULE,$(qN))))
+
+define EVALUATE_SEMANTIC_RULE
+evaluate_semantic_$(1):
+	python scripts/query_solr.py --query queries/q$(1).json --uri http://localhost:8983/solr --collection episodes --type semantic | \
+	python scripts/solr2trec.py > evaluation/results_q$(1)_semantic_trec.txt && \
+	cat qrels/qrels$(1).txt | python scripts/qrels2trec.py > evaluation/qrels_trec_q$(1)_semantic.txt && \
+	trec_eval evaluation/qrels_trec_q$(1)_semantic.txt evaluation/results_q$(1)_semantic_trec.txt && \
+	cat evaluation/results_q$(1)_semantic_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(1)_semantic.txt --output evaluation/prec_rec_q$(1)_semantic.png --output_avp evaluation/avp_semantic/q$(1).txt
+endef
+$(foreach qN,$(QUERIES),$(eval $(call EVALUATE_SEMANTIC_RULE,$(qN))))
+
+define EVALUATE_TRANSCRIPT_RULE
+evaluate_transcript_$(1):
+	python scripts/query_solr.py --query queries/q$(1).json --uri http://localhost:8983/solr --collection episodes --type transcript | \
+	python scripts/solr2trec.py > evaluation/results_q$(1)_transcript_trec.txt && \
+	cat qrels/qrels$(1).txt | python scripts/qrels2trec.py > evaluation/qrels_trec_q$(1)_transcript.txt && \
+	trec_eval evaluation/qrels_trec_q$(1)_transcript.txt evaluation/results_q$(1)_transcript_trec.txt && \
+	cat evaluation/results_q$(1)_transcript_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(1)_transcript.txt --output evaluation/prec_rec_q$(1)_transcript.png --output_avp evaluation/avp_transcript/q$(1).txt
+endef
+$(foreach qN,$(QUERIES),$(eval $(call EVALUATE_TRANSCRIPT_RULE,$(qN))))
