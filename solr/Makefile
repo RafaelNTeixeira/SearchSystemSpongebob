@@ -112,7 +112,7 @@ evaluate_$(1):
 	python scripts/query_solr.py --query queries/q$(1).json --uri http://localhost:8983/solr --collection episodes | \
 	python scripts/solr2trec.py > evaluation/results_q$(1)_trec.txt && \
 	cat qrels/qrels$(1).txt | python scripts/qrels2trec.py > evaluation/qrels_trec_q$(1).txt && \
-	trec_eval evaluation/qrels_trec_q$(1).txt evaluation/results_q$(1)_trec.txt && \
+	trec_eval evaluation/qrels_trec_q$(1).txt evaluation/results_q$(1)_trec.txt > evaluation/trec_eval_results/q$(1)_boosted.txt && \
 	cat evaluation/results_q$(1)_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(1).txt --output evaluation/prec_rec_q$(1).png  --output_avp evaluation/avp_boosted/q$(1).txt
 endef
 $(foreach qN,$(QUERIES),$(eval $(call EVALUATE_RULE,$(qN))))
@@ -122,7 +122,7 @@ evaluate_simple_$(1):
 	python scripts/query_solr.py --query queries/q$(1)_simple.json --uri http://localhost:8983/solr --collection schemaless_subset | \
 	python scripts/solr2trec.py > evaluation/results_q$(1)_simple_trec.txt && \
 	cat qrels/qrels$(1).txt | python scripts/qrels2trec.py > evaluation/qrels_trec_q$(1)_simple.txt && \
-	trec_eval evaluation/qrels_trec_q$(1)_simple.txt evaluation/results_q$(1)_simple_trec.txt && \
+	trec_eval evaluation/qrels_trec_q$(1)_simple.txt evaluation/results_q$(1)_simple_trec.txt > evaluation/trec_eval_results/q$(1)_simple.txt && \
 	cat evaluation/results_q$(1)_simple_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(1)_simple.txt --output evaluation/prec_rec_q$(1)_simple.png --output_avp evaluation/avp_simple/q$(1).txt
 endef
 $(foreach qN,$(QUERIES),$(eval $(call EVALUATE_SIMPLE_RULE,$(qN))))
@@ -132,7 +132,7 @@ evaluate_semantic_$(1):
 	python scripts/query_solr.py --query queries/q$(1).json --uri http://localhost:8983/solr --collection episodes --type semantic | \
 	python scripts/solr2trec.py > evaluation/results_q$(1)_semantic_trec.txt && \
 	cat qrels/qrels$(1).txt | python scripts/qrels2trec.py > evaluation/qrels_trec_q$(1)_semantic.txt && \
-	trec_eval evaluation/qrels_trec_q$(1)_semantic.txt evaluation/results_q$(1)_semantic_trec.txt && \
+	trec_eval evaluation/qrels_trec_q$(1)_semantic.txt evaluation/results_q$(1)_semantic_trec.txt > evaluation/trec_eval_results/q$(1)_semantic.txt && \
 	cat evaluation/results_q$(1)_semantic_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(1)_semantic.txt --output evaluation/prec_rec_q$(1)_semantic.png --output_avp evaluation/avp_semantic/q$(1).txt
 endef
 $(foreach qN,$(QUERIES),$(eval $(call EVALUATE_SEMANTIC_RULE,$(qN))))
@@ -142,7 +142,7 @@ evaluate_transcript_$(1):
 	python scripts/query_solr.py --query queries/q$(1).json --uri http://localhost:8983/solr --collection episodes --type transcript | \
 	python scripts/solr2trec.py > evaluation/results_q$(1)_transcript_trec.txt && \
 	cat qrels/qrels$(1).txt | python scripts/qrels2trec.py > evaluation/qrels_trec_q$(1)_transcript.txt && \
-	trec_eval evaluation/qrels_trec_q$(1)_transcript.txt evaluation/results_q$(1)_transcript_trec.txt && \
+	trec_eval evaluation/qrels_trec_q$(1)_transcript.txt evaluation/results_q$(1)_transcript_trec.txt > evaluation/trec_eval_results/q$(1)_transcript.txt && \
 	cat evaluation/results_q$(1)_transcript_trec.txt | python scripts/plot_pr.py --qrels evaluation/qrels_trec_q$(1)_transcript.txt --output evaluation/prec_rec_q$(1)_transcript.png --output_avp evaluation/avp_transcript/q$(1).txt
 endef
 $(foreach qN,$(QUERIES),$(eval $(call EVALUATE_TRANSCRIPT_RULE,$(qN))))
